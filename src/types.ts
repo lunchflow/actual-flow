@@ -13,9 +13,7 @@ export interface LunchFlowTransaction {
 export interface LunchFlowAccount {
   id: string;
   name: string;
-  type: 'checking' | 'savings' | 'credit' | 'investment' | 'other';
-  balance: number;
-  currency: string;
+  institution_name: string;
 }
 
 export interface ActualBudgetTransaction {

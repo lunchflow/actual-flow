@@ -10,7 +10,7 @@ export class LunchFlowClient {
     this.client = axios.create({
       baseURL: baseUrl,
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'x-api-key': apiKey,
         'Content-Type': 'application/json',
       },
       timeout: 10000,
@@ -33,12 +33,8 @@ export class LunchFlowClient {
       const response = await this.client.get('/accounts');
       
       // Handle different possible response structures
-      if (Array.isArray(response.data)) {
-        return response.data;
-      } else if (response.data.accounts) {
+      if (Array.isArray(response.data.accounts)) {
         return response.data.accounts;
-      } else if (response.data.data) {
-        return response.data.data;
       } else {
         console.warn('Unexpected response structure from Lunch Flow accounts endpoint');
         return [];

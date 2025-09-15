@@ -98,8 +98,8 @@ export class TerminalUI {
     }
 
     const table = new Table({
-      head: ['ID', 'Name', 'Type', 'Balance'],
-      colWidths: [8, 25, 12, 15],
+      head: ['ID', 'Name'],
+      colWidths: [8, 25],
       style: {
         head: ['cyan'],
         border: ['gray'],
@@ -108,10 +108,8 @@ export class TerminalUI {
 
     accounts.forEach(account => {
       table.push([
-        account.id.substring(0, 8) + '...',
+        account.id.toString().substring(0, 8) + '...',
         account.name,
-        account.type,
-        `$${account.balance.toFixed(2)}`
       ]);
     });
 
@@ -129,7 +127,7 @@ export class TerminalUI {
 
     for (const lfAccount of lfAccounts) {
       const choices = abAccounts.map(abAccount => ({
-        name: `${abAccount.name} (${abAccount.type})`,
+        name: `${abAccount.name} (${abAccount.currency})`,
         value: abAccount.id,
       }));
 
@@ -137,7 +135,7 @@ export class TerminalUI {
         {
           type: 'list',
           name: 'abAccountId',
-          message: `Map "${lfAccount.name}" (${lfAccount.type}) to:`,
+          message: `Map "${lfAccount.name}" (${lfAccount.institution_name}) to:`,
           choices: [
             { name: 'Skip this account', value: 'skip' },
             ...choices,
