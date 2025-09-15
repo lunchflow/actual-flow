@@ -1,0 +1,339 @@
+import inquirer from 'inquirer';
+import chalk from 'chalk';
+import ora from 'ora';
+import Table from 'cli-table3';
+import { LunchFlowAccount, ActualBudgetAccount, AccountMapping, ConnectionStatus } from './types';
+
+export class TerminalUI {
+  async showWelcome(): Promise<void> {
+    console.clear();
+    console.log(chalk.blue.bold('\n🍽️  Lunch Flow → Actual Budget Importer\n'));
+    console.log(chalk.gray('This tool helps you import transactions from Lunch Flow to Actual Budget\n'));
+  }
+
+  async getLunchFlowCredentials(): Promise<{ apiKey: string; baseUrl: string }> {
+    console.log(chalk.yellow('📡 Lunch Flow Configuration\n'));
+    
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'apiKey',
+        message: 'Enter your Lunch Flow API key:',
+        validate: (input: string) => input.length > 0 || 'API key is required',
+      },
+      {
+        type: 'input',
+        name: 'baseUrl',
+        message: 'Enter Lunch Flow API base URL:',
+        default: 'https://api.lunchflow.com',
+        validate: (input: string) => {
+          try {
+            new URL(input);
+            return true;
+          } catch {
+            return 'Please enter a valid URL';
+          }
+        },
+      },
+    ]);
+    return answers;
+  }
+
+  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password?: string }> {
+    console.log(chalk.yellow('\n💰 Actual Budget Configuration\n'));
+    console.log(chalk.gray('To find your budget sync ID:'));
+    console.log(chalk.gray('1. Open Actual Budget in your browser'));
+    console.log(chalk.gray('2. Go to Settings → Show advanced settings'));
+    console.log(chalk.gray('3. Look for "Sync ID" - that\'s your budget sync ID'));
+    console.log(chalk.gray('4. Or check the URL: http://localhost:5007/budget/your-sync-id'));
+    console.log(chalk.gray('5. The sync ID is the part after "/budget/"\n'));
+    
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'serverUrl',
+        message: 'Enter Actual Budget server URL:',
+        default: 'http://localhost:5007',
+        validate: (input: string) => {
+          try {
+            new URL(input);
+            return true;
+          } catch {
+            return 'Please enter a valid URL';
+          }
+        },
+      },
+      {
+        type: 'input',
+        name: 'budgetSyncId',
+        message: 'Enter Actual Budget budget sync ID:',
+        validate: (input: string) => input.length > 0 || 'Budget sync ID is required',
+      },
+      {
+        type: 'password',
+        name: 'password',
+        message: 'Enter Actual Budget password (optional):',
+        mask: '*',
+      },
+    ]);
+    return answers;
+  }
+
+  async showConnectionStatus(status: ConnectionStatus): Promise<void> {
+    console.log(chalk.blue('\n🔗 Connection Status\n'));
+    
+    const lfStatus = status.lunchFlow ? chalk.green('✅ Connected') : chalk.red('❌ Disconnected');
+    const abStatus = status.actualBudget ? chalk.green('✅ Connected') : chalk.red('❌ Disconnected');
+    
+    console.log(`Lunch Flow: ${lfStatus}`);
+    console.log(`Actual Budget: ${abStatus}\n`);
+  }
+
+  async showAccountsTable(accounts: (LunchFlowAccount | ActualBudgetAccount)[], title: string): Promise<void> {
+    console.log(chalk.blue(`\n${title}\n`));
+    
+    if (accounts.length === 0) {
+      console.log(chalk.yellow('No accounts found.\n'));
+      return;
+    }
+
+    const table = new Table({
+      head: ['ID', 'Name', 'Type', 'Balance'],
+      colWidths: [8, 25, 12, 15],
+      style: {
+        head: ['cyan'],
+        border: ['gray'],
+      }
+    });
+
+    accounts.forEach(account => {
+      table.push([
+        account.id.substring(0, 8) + '...',
+        account.name,
+        account.type,
+        `$${account.balance.toFixed(2)}`
+      ]);
+    });
+
+    console.log(table.toString());
+  }
+
+  async configureAccountMappings(
+    lfAccounts: LunchFlowAccount[],
+    abAccounts: ActualBudgetAccount[]
+  ): Promise<AccountMapping[]> {
+    console.log(chalk.yellow('\n📋 Configure Account Mappings\n'));
+    console.log(chalk.gray('Map each Lunch Flow account to an Actual Budget account:\n'));
+
+    const mappings: AccountMapping[] = [];
+
+    for (const lfAccount of lfAccounts) {
+      const choices = abAccounts.map(abAccount => ({
+        name: `${abAccount.name} (${abAccount.type})`,
+        value: abAccount.id,
+      }));
+
+      const answer = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'abAccountId',
+          message: `Map "${lfAccount.name}" (${lfAccount.type}) to:`,
+          choices: [
+            { name: 'Skip this account', value: 'skip' },
+            ...choices,
+          ],
+        },
+      ]);
+
+      if (answer.abAccountId !== 'skip') {
+        const abAccount = abAccounts.find(a => a.id === answer.abAccountId);
+        if (abAccount) {
+          mappings.push({
+            lunchFlowAccountId: lfAccount.id,
+            lunchFlowAccountName: lfAccount.name,
+            actualBudgetAccountId: abAccount.id,
+            actualBudgetAccountName: abAccount.name,
+          });
+        }
+      }
+    }
+
+    return mappings;
+  }
+
+  async showAccountMappings(mappings: AccountMapping[]): Promise<void> {
+    console.log(chalk.blue('\n📋 Current Account Mappings\n'));
+    
+    if (mappings.length === 0) {
+      console.log(chalk.yellow('No account mappings configured.\n'));
+      return;
+    }
+
+    const table = new Table({
+      head: ['Lunch Flow Account', '→', 'Actual Budget Account'],
+      colWidths: [25, 3, 25],
+      style: {
+        head: ['cyan'],
+        border: ['gray'],
+      }
+    });
+
+    mappings.forEach(mapping => {
+      table.push([
+        mapping.lunchFlowAccountName,
+        '→',
+        mapping.actualBudgetAccountName
+      ]);
+    });
+
+    console.log(table.toString());
+  }
+
+  async selectDateRange(): Promise<{ startDate: string; endDate: string }> {
+    console.log(chalk.yellow('\n📅 Select Date Range for Import\n'));
+    
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'startDate',
+        message: 'Start date (YYYY-MM-DD):',
+        validate: (input: string) => {
+          const date = new Date(input);
+          if (isNaN(date.getTime())) {
+            return 'Please enter a valid date in YYYY-MM-DD format';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'endDate',
+        message: 'End date (YYYY-MM-DD):',
+        validate: (input: string) => {
+          const date = new Date(input);
+          if (isNaN(date.getTime())) {
+            return 'Please enter a valid date in YYYY-MM-DD format';
+          }
+          return true;
+        },
+      },
+    ]);
+    return answers;
+  }
+
+  async confirmImport(transactionCount: number, dateRange: { startDate: string; endDate: string }): Promise<boolean> {
+    console.log(chalk.yellow('\n⚠️  Import Confirmation\n'));
+    console.log(`Date Range: ${dateRange.startDate} to ${dateRange.endDate}`);
+    console.log(`Transactions to import: ${transactionCount}\n`);
+    
+    const answer = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirm',
+        message: 'Proceed with import?',
+        default: true,
+      },
+    ]);
+    return answer.confirm;
+  }
+
+  async showMainMenu(): Promise<string> {
+    console.log(chalk.blue('\n🎯 Main Menu\n'));
+    
+    const answer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+          { name: '🔗 Test connections', value: 'test' },
+          { name: '📋 List available budgets', value: 'list-budgets' },
+          { name: '📋 Configure account mappings', value: 'configure' },
+          { name: '📊 Show current mappings', value: 'show' },
+          { name: '📥 Import transactions', value: 'import' },
+          { name: '⚙️  Reconfigure credentials', value: 'reconfigure' },
+          { name: '❌ Exit', value: 'exit' },
+        ],
+      },
+    ]);
+    return answer.action;
+  }
+
+  async showReconfigureMenu(): Promise<string> {
+    console.log(chalk.yellow('\n⚙️  Reconfigure Credentials\n'));
+    
+    const answer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to reconfigure?',
+        choices: [
+          { name: 'Lunch Flow credentials', value: 'lunchflow' },
+          { name: 'Actual Budget credentials', value: 'actualbudget' },
+          { name: 'Both', value: 'both' },
+          { name: 'Cancel', value: 'cancel' },
+        ],
+      },
+    ]);
+    return answer.action;
+  }
+
+  showSpinner(message: string): any {
+    return ora(message).start();
+  }
+
+  showSuccess(message: string): void {
+    console.log(chalk.green(`✅ ${message}`));
+  }
+
+  showError(message: string): void {
+    console.log(chalk.red(`❌ ${message}`));
+  }
+
+  showInfo(message: string): void {
+    console.log(chalk.blue(`ℹ️  ${message}`));
+  }
+
+  showWarning(message: string): void {
+    console.log(chalk.yellow(`⚠️  ${message}`));
+  }
+
+  async showTransactionPreview(transactions: any[], count: number = 10): Promise<void> {
+    console.log(chalk.blue(`\n📊 Transaction Preview (showing first ${Math.min(count, transactions.length)})\n`));
+    
+    if (transactions.length === 0) {
+      console.log(chalk.yellow('No transactions to preview.\n'));
+      return;
+    }
+
+    const table = new Table({
+      head: ['Date', 'Description', 'Amount', 'Account'],
+      colWidths: [12, 30, 12, 20],
+      style: {
+        head: ['cyan'],
+        border: ['gray'],
+      }
+    });
+
+    transactions.slice(0, count).forEach(transaction => {
+      const amount = transaction.amount >= 0 
+        ? chalk.green(`+$${transaction.amount.toFixed(2)}`)
+        : chalk.red(`-$${Math.abs(transaction.amount).toFixed(2)}`);
+      
+      table.push([
+        transaction.date,
+        transaction.description,
+        amount,
+        transaction.account_name || 'Unknown'
+      ]);
+    });
+
+    console.log(table.toString());
+    
+    if (transactions.length > count) {
+      console.log(chalk.gray(`... and ${transactions.length - count} more transactions\n`));
+    } else {
+      console.log();
+    }
+  }
+}

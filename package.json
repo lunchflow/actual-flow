@@ -1,0 +1,35 @@
+{
+  "name": "lunch-flow-actual-importer",
+  "version": "1.0.0",
+  "description": "Import transactions from Lunch Flow to Actual Budget with terminal UI",
+  "main": "dist/index.js",
+  "bin": {
+    "lf-actual": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "prepare": "pnpm run build",
+    "install:dev": "pnpm install",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["lunch-flow", "actual-budget", "importer", "transactions"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@actual-app/api": "^25.9.0",
+    "inquirer": "^8.2.6",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "cli-table3": "^0.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/inquirer": "^9.0.7",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
