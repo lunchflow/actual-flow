@@ -155,18 +155,6 @@ pnpm start
 pnpm run clean
 ```
 
-### Environment Variables
-
-You can also use environment variables for configuration:
-
-```bash
-LUNCH_FLOW_API_KEY=your_api_key
-LUNCH_FLOW_BASE_URL=https://api.lunchflow.com
-ACTUAL_BUDGET_SERVER_URL=http://localhost:5007
-ACTUAL_BUDGET_BUDGET_ID=your_budget_id
-ACTUAL_BUDGET_PASSWORD=your_password
-```
-
 ## Troubleshooting
 
 ### Common Issues
