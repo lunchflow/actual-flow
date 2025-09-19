@@ -1,6 +1,6 @@
 {
   "name": "@lunchflow/actual-flow",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Import transactions from Lunch Flow to Actual Budget with terminal UI.",
   "main": "./dist/index.js",
   "bin": {
@@ -14,7 +14,12 @@
     "install:dev": "pnpm install",
     "clean": "rm -rf dist"
   },
-  "keywords": ["lunch-flow", "actual-budget", "importer", "transactions"],
+  "keywords": [
+    "lunch-flow",
+    "actual-budget",
+    "importer",
+    "transactions"
+  ],
   "author": "Amr Awad",
   "license": "MIT",
   "dependencies": {
