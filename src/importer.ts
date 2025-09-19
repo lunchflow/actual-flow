@@ -136,11 +136,10 @@ export class LunchFlowImporter {
       return;
     }
 
-    const { startDate, endDate } = await this.ui.selectDateRange();
     const spinner = this.ui.showSpinner('Fetching transactions...');
 
     try {
-      const lfTransactions = await this.lfClient.getTransactionsForDateRange(startDate, endDate);
+      const lfTransactions = await this.lfClient.getTransactions(this.config.accountMappings[0].lunchFlowAccountId);
       spinner.stop();
 
       if (lfTransactions.length === 0) {
@@ -156,6 +155,9 @@ export class LunchFlowImporter {
         return;
       }
 
+      const startDate = abTransactions.reduce((min, t) => t.date < min ? t.date : min, abTransactions[0].date);
+      const endDate = abTransactions.reduce((max, t) => t.date > max ? t.date : max, abTransactions[0].date);
+
       // Show preview
       await this.ui.showTransactionPreview(abTransactions);
 
@@ -165,32 +167,11 @@ export class LunchFlowImporter {
         return;
       }
 
-      // Check for existing transactions to avoid duplicates
-      const existingSpinner = this.ui.showSpinner('Checking for existing transactions...');
-      const existingTransactions = await this.abClient.getExistingTransactions(
-        this.config.accountMappings[0].actualBudgetAccountId, // Use first mapped account for check
-        startDate,
-        endDate
-      );
-      existingSpinner.stop();
-
-      // Filter out already imported transactions
-      const newTransactions = mapper.filterNewTransactions(abTransactions, existingTransactions);
-      
-      if (newTransactions.length === 0) {
-        this.ui.showInfo('All transactions have already been imported');
-        return;
-      }
-
-      if (newTransactions.length < abTransactions.length) {
-        this.ui.showInfo(`${abTransactions.length - newTransactions.length} transactions already exist and will be skipped`);
-      }
-
-      const importSpinner = this.ui.showSpinner(`Importing ${newTransactions.length} transactions...`);
-      await this.abClient.importTransactions(newTransactions);
+      const importSpinner = this.ui.showSpinner(`Importing ${abTransactions.length} transactions...`);
+      await this.abClient.importTransactions(abTransactions);
       importSpinner.stop();
 
-      this.ui.showSuccess(`Successfully imported ${newTransactions.length} transactions`);
+      this.ui.showSuccess(`Successfully imported ${abTransactions.length} transactions`);
     } catch (error) {
       spinner.stop();
       this.ui.showError('Failed to import transactions');

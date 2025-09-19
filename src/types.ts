@@ -1,17 +1,16 @@
+export type LunchFlowAccountId = number;
 export interface LunchFlowTransaction {
   id: string;
+  accountId: LunchFlowAccountId;
   date: string;
   amount: number;
+  currency: string;
+  merchant: string;
   description: string;
-  account_id: string;
-  category_id?: string;
-  payee?: string;
-  cleared?: boolean;
-  notes?: string;
 }
 
 export interface LunchFlowAccount {
-  id: string;
+  id: LunchFlowAccountId;
   name: string;
   institution_name: string;
 }
@@ -20,10 +19,8 @@ export interface ActualBudgetTransaction {
   id?: string;
   date: string;
   amount: number;
-  description: string;
-  account_id: string;
-  category_id?: string;
-  payee_id?: string;
+  imported_payee: string;
+  account: string;
   cleared?: boolean;
   notes?: string;
   imported_id?: string;
@@ -38,7 +35,7 @@ export interface ActualBudgetAccount {
 }
 
 export interface AccountMapping {
-  lunchFlowAccountId: string;
+  lunchFlowAccountId: LunchFlowAccountId;
   lunchFlowAccountName: string;
   actualBudgetAccountId: string;
   actualBudgetAccountName: string;

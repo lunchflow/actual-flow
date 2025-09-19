@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { LunchFlowTransaction, LunchFlowAccount } from './types';
+import { LunchFlowTransaction, LunchFlowAccount, LunchFlowAccountId } from './types';
 
 export class LunchFlowClient {
   private client: AxiosInstance;
@@ -45,22 +45,13 @@ export class LunchFlowClient {
     }
   }
 
-  async getTransactions(accountId?: string, startDate?: string, endDate?: string): Promise<LunchFlowTransaction[]> {
+  async getTransactions(accountId: LunchFlowAccountId): Promise<LunchFlowTransaction[]> {
     try {
-      const params: any = {};
-      if (accountId) params.account_id = accountId;
-      if (startDate) params.start_date = startDate;
-      if (endDate) params.end_date = endDate;
-
-      const response = await this.client.get('/transactions', { params });
+      const response = await this.client.get(`/accounts/${accountId}/transactions`);
       
       // Handle different possible response structures
-      if (Array.isArray(response.data)) {
-        return response.data;
-      } else if (response.data.transactions) {
+      if (Array.isArray(response.data.transactions)) {
         return response.data.transactions;
-      } else if (response.data.data) {
-        return response.data.data;
       } else {
         console.warn('Unexpected response structure from Lunch Flow transactions endpoint');
         return [];
@@ -69,9 +60,5 @@ export class LunchFlowClient {
       console.error('Failed to fetch Lunch Flow transactions:', error.message);
       throw new Error(`Failed to fetch transactions: ${error.message}`);
     }
-  }
-
-  async getTransactionsForDateRange(startDate: string, endDate: string): Promise<LunchFlowTransaction[]> {
-    return this.getTransactions(undefined, startDate, endDate);
   }
 }

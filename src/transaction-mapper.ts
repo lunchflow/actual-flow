@@ -9,23 +9,21 @@ export class TransactionMapper {
 
   mapTransaction(lfTransaction: LunchFlowTransaction): ActualBudgetTransaction | null {
     const mapping = this.accountMappings.find(
-      m => m.lunchFlowAccountId === lfTransaction.account_id
+      m => m.lunchFlowAccountId === lfTransaction.accountId
     );
 
     if (!mapping) {
-      console.warn(`No mapping found for Lunch Flow account ${lfTransaction.account_id}`);
+      console.warn(`No mapping found for Lunch Flow account ${lfTransaction.accountId}`);
       return null;
     }
 
     return {
       date: lfTransaction.date,
-      amount: lfTransaction.amount,
-      description: lfTransaction.description,
-      account_id: mapping.actualBudgetAccountId,
-      category_id: lfTransaction.category_id,
-      payee_id: lfTransaction.payee,
-      cleared: lfTransaction.cleared || false,
-      notes: lfTransaction.notes,
+      amount: lfTransaction.amount * 100,
+      imported_payee: lfTransaction.merchant,
+      account: mapping.actualBudgetAccountId,
+      cleared: true, // Lunch Flow transactions are always cleared
+      notes: lfTransaction.description,
       imported_id: `lf_${lfTransaction.id}`,
     };
   }
@@ -43,7 +41,7 @@ export class TransactionMapper {
         const mapped = this.mapTransaction(t);
         if (!mapped) return null;
         
-        const mapping = this.accountMappings.find(m => m.lunchFlowAccountId === t.account_id);
+        const mapping = this.accountMappings.find(m => m.lunchFlowAccountId === t.accountId);
         return {
           ...mapped,
           account_name: mapping?.actualBudgetAccountName || 'Unknown'
@@ -52,24 +50,4 @@ export class TransactionMapper {
       .filter((t): t is ActualBudgetTransaction & { account_name: string } => t !== null);
   }
 
-  // Check if a transaction already exists (for deduplication)
-  isTransactionAlreadyImported(transaction: ActualBudgetTransaction, existingTransactions: ActualBudgetTransaction[]): boolean {
-    return existingTransactions.some(existing => 
-      existing.imported_id === transaction.imported_id ||
-      (existing.date === transaction.date && 
-       existing.amount === transaction.amount && 
-       existing.description === transaction.description &&
-       existing.account_id === transaction.account_id)
-    );
-  }
-
-  // Filter out already imported transactions
-  filterNewTransactions(
-    newTransactions: ActualBudgetTransaction[], 
-    existingTransactions: ActualBudgetTransaction[]
-  ): ActualBudgetTransaction[] {
-    return newTransactions.filter(transaction => 
-      !this.isTransactionAlreadyImported(transaction, existingTransactions)
-    );
-  }
 }

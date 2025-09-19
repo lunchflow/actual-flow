@@ -89,57 +89,10 @@ export class ActualBudgetClient {
     }
 
     try {
-      // Group transactions by account and import in batches
-      const transactionsByAccount = new Map<string, any[]>();
-      
-      for (const transaction of transactions) {
-        if (!transactionsByAccount.has(transaction.account_id)) {
-          transactionsByAccount.set(transaction.account_id, []);
-        }
-        transactionsByAccount.get(transaction.account_id)!.push({
-          date: transaction.date,
-          amount: actualAPI.utils.amountToInteger(transaction.amount),
-          description: transaction.description,
-          category_id: transaction.category_id,
-          payee_id: transaction.payee_id,
-          cleared: transaction.cleared,
-          notes: transaction.notes,
-          imported_id: transaction.imported_id,
-        });
-      }
-
-      // Import each account's transactions using addTransactions
-      for (const [accountId, accountTransactions] of transactionsByAccount) {
-        await actualAPI.addTransactions(accountId, accountTransactions);
-      }
+      actualAPI.importTransactions(transactions[0].account, transactions);
     } catch (error: any) {
       console.error('Failed to import transactions to Actual Budget:', error.message);
       throw new Error(`Failed to import transactions: ${error.message}`);
-    }
-  }
-
-  async getExistingTransactions(accountId: string, startDate: string, endDate: string): Promise<ActualBudgetTransaction[]> {
-    if (!this.connected) {
-      await this.connect();
-    }
-
-    try {
-      const transactions = await actualAPI.getTransactions(accountId, startDate, endDate);
-      return transactions.map((t: any) => ({
-        id: t.id,
-        date: t.date,
-        amount: actualAPI.utils.integerToAmount(t.amount),
-        description: t.description,
-        account_id: t.account_id,
-        category_id: t.category_id,
-        payee_id: t.payee_id,
-        cleared: t.cleared,
-        notes: t.notes,
-        imported_id: t.imported_id,
-      }));
-    } catch (error: any) {
-      console.error('Failed to fetch existing transactions:', error.message);
-      throw new Error(`Failed to fetch existing transactions: ${error.message}`);
     }
   }
 

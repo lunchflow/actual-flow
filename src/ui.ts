@@ -187,38 +187,6 @@ export class TerminalUI {
     console.log(table.toString());
   }
 
-  async selectDateRange(): Promise<{ startDate: string; endDate: string }> {
-    console.log(chalk.yellow('\n📅 Select Date Range for Import\n'));
-    
-    const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'startDate',
-        message: 'Start date (YYYY-MM-DD):',
-        validate: (input: string) => {
-          const date = new Date(input);
-          if (isNaN(date.getTime())) {
-            return 'Please enter a valid date in YYYY-MM-DD format';
-          }
-          return true;
-        },
-      },
-      {
-        type: 'input',
-        name: 'endDate',
-        message: 'End date (YYYY-MM-DD):',
-        validate: (input: string) => {
-          const date = new Date(input);
-          if (isNaN(date.getTime())) {
-            return 'Please enter a valid date in YYYY-MM-DD format';
-          }
-          return true;
-        },
-      },
-    ]);
-    return answers;
-  }
-
   async confirmImport(transactionCount: number, dateRange: { startDate: string; endDate: string }): Promise<boolean> {
     console.log(chalk.yellow('\n⚠️  Import Confirmation\n'));
     console.log(`Date Range: ${dateRange.startDate} to ${dateRange.endDate}`);
@@ -313,18 +281,21 @@ export class TerminalUI {
       }
     });
 
-    transactions.slice(0, count).forEach(transaction => {
-      const amount = transaction.amount >= 0 
-        ? chalk.green(`+$${transaction.amount.toFixed(2)}`)
-        : chalk.red(`-$${Math.abs(transaction.amount).toFixed(2)}`);
-      
-      table.push([
-        transaction.date,
-        transaction.description,
-        amount,
-        transaction.account_name || 'Unknown'
-      ]);
-    });
+    transactions
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, count)
+      .forEach(transaction => {
+        const amount = transaction.amount >= 0 
+          ? chalk.green(`+$${transaction.amount.toFixed(2)}`)
+          : chalk.red(`-$${Math.abs(transaction.amount).toFixed(2)}`);
+        
+        table.push([
+          transaction.date,
+          transaction.imported_payee,
+          amount,
+          transaction.account_name || 'Unknown'
+        ]);
+      });
 
     console.log(table.toString());
     
