@@ -89,7 +89,8 @@ export class ActualBudgetClient {
     }
 
     try {
-      actualAPI.importTransactions(transactions[0].account, transactions);
+      const result = await actualAPI.importTransactions(transactions[0].account, transactions);
+      console.log('Transactions imported successfully:', result);
     } catch (error: any) {
       console.error('Failed to import transactions to Actual Budget:', error.message);
       throw new Error(`Failed to import transactions: ${error.message}`);
