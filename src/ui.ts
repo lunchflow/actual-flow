@@ -13,19 +13,24 @@ export class TerminalUI {
 
   async getLunchFlowCredentials(): Promise<{ apiKey: string; baseUrl: string }> {
     console.log(chalk.yellow('📡 Lunch Flow Configuration\n'));
+    console.log(chalk.gray('To find your Lunch Flow API key:'));
+    console.log(chalk.gray('1. Login to Lunch Flow: https://lunchflow.app'));
+    console.log(chalk.gray('2. Go to Destinations → create a new API destination'));
+    console.log(chalk.gray('3. Look for "API Key" - that\'s your API key\n'));
     
     const answers = await inquirer.prompt([
       {
-        type: 'input',
+        type: 'password',
         name: 'apiKey',
         message: 'Enter your Lunch Flow API key:',
         validate: (input: string) => input.length > 0 || 'API key is required',
+        mask: '*',
       },
       {
         type: 'input',
         name: 'baseUrl',
         message: 'Enter Lunch Flow API base URL:',
-        default: 'https://api.lunchflow.com',
+        default: 'https://lunchflow.app/api/v1',
         validate: (input: string) => {
           try {
             new URL(input);
@@ -44,16 +49,14 @@ export class TerminalUI {
     console.log(chalk.gray('To find your budget sync ID:'));
     console.log(chalk.gray('1. Open Actual Budget in your browser'));
     console.log(chalk.gray('2. Go to Settings → Show advanced settings'));
-    console.log(chalk.gray('3. Look for "Sync ID" - that\'s your budget sync ID'));
-    console.log(chalk.gray('4. Or check the URL: http://localhost:5007/budget/your-sync-id'));
-    console.log(chalk.gray('5. The sync ID is the part after "/budget/"\n'));
+    console.log(chalk.gray('3. Look for "Sync ID" - that\'s your budget sync ID\n'));
     
     const answers = await inquirer.prompt([
       {
         type: 'input',
         name: 'serverUrl',
         message: 'Enter Actual Budget server URL:',
-        default: 'http://localhost:5007',
+        default: 'http://localhost:5006',
         validate: (input: string) => {
           try {
             new URL(input);
