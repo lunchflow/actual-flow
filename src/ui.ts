@@ -290,14 +290,15 @@ export class TerminalUI {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, count)
       .forEach(transaction => {
-        const amount = transaction.amount >= 0 
-          ? chalk.green(`+$${transaction.amount.toFixed(2)}`)
-          : chalk.red(`-$${Math.abs(transaction.amount).toFixed(2)}`);
+        const amount = transaction.amount / 100;
+        const amountDisplay = transaction.amount >= 0 
+          ? chalk.green(`+${amount.toFixed(2)}`)
+          : chalk.red(`-${Math.abs(amount).toFixed(2)}`);
         
         table.push([
           transaction.date,
           transaction.imported_payee,
-          amount,
+          amountDisplay,
           accountNames[transaction.account] || 'Unknown'
         ]);
       });
