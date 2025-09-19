@@ -148,7 +148,7 @@ export class LunchFlowImporter {
       }
 
       const mapper = new TransactionMapper(this.config.accountMappings);
-      const abTransactions = mapper.mapTransactionsWithAccountNames(lfTransactions);
+      const abTransactions = mapper.mapTransactions(lfTransactions);
 
       if (abTransactions.length === 0) {
         this.ui.showError('No transactions could be mapped to Actual Budget accounts');
@@ -159,7 +159,8 @@ export class LunchFlowImporter {
       const endDate = abTransactions.reduce((max, t) => t.date > max ? t.date : max, abTransactions[0].date);
 
       // Show preview
-      await this.ui.showTransactionPreview(abTransactions);
+      const abAccounts = await this.abClient.getAccounts();
+      await this.ui.showTransactionPreview(abTransactions, abAccounts);
 
       const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
       if (!confirmed) {

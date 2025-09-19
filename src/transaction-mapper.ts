@@ -33,21 +33,4 @@ export class TransactionMapper {
       .map(t => this.mapTransaction(t))
       .filter((t): t is ActualBudgetTransaction => t !== null);
   }
-
-  // Add account name to transactions for preview purposes
-  mapTransactionsWithAccountNames(lfTransactions: LunchFlowTransaction[]): (ActualBudgetTransaction & { account_name: string })[] {
-    return lfTransactions
-      .map(t => {
-        const mapped = this.mapTransaction(t);
-        if (!mapped) return null;
-        
-        const mapping = this.accountMappings.find(m => m.lunchFlowAccountId === t.accountId);
-        return {
-          ...mapped,
-          account_name: mapping?.actualBudgetAccountName || 'Unknown'
-        };
-      })
-      .filter((t): t is ActualBudgetTransaction & { account_name: string } => t !== null);
-  }
-
 }

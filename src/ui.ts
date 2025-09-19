@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 import Table from 'cli-table3';
-import { LunchFlowAccount, ActualBudgetAccount, AccountMapping, ConnectionStatus } from './types';
+import { LunchFlowAccount, ActualBudgetAccount, AccountMapping, ConnectionStatus, ActualBudgetTransaction } from './types';
 
 export class TerminalUI {
   async showWelcome(): Promise<void> {
@@ -264,13 +264,18 @@ export class TerminalUI {
     console.log(chalk.yellow(`⚠️  ${message}`));
   }
 
-  async showTransactionPreview(transactions: any[], count: number = 10): Promise<void> {
+  async showTransactionPreview(transactions: ActualBudgetTransaction[], accounts: ActualBudgetAccount[], count: number = 10): Promise<void> {
     console.log(chalk.blue(`\n📊 Transaction Preview (showing first ${Math.min(count, transactions.length)})\n`));
     
     if (transactions.length === 0) {
       console.log(chalk.yellow('No transactions to preview.\n'));
       return;
     }
+
+    const accountNames = accounts.reduce((acc, account) => {
+      acc[account.id] = account.name;
+      return acc;
+    }, {} as Record<string, string>);
 
     const table = new Table({
       head: ['Date', 'Description', 'Amount', 'Account'],
@@ -293,7 +298,7 @@ export class TerminalUI {
           transaction.date,
           transaction.imported_payee,
           amount,
-          transaction.account_name || 'Unknown'
+          accountNames[transaction.account] || 'Unknown'
         ]);
       });
 
