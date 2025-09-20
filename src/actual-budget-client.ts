@@ -89,7 +89,30 @@ export class ActualBudgetClient {
     }
 
     try {
-      await actualAPI.importTransactions(transactions[0].account, transactions);
+      // Group transactions by account
+      const transactionsByAccount = new Map<string, ActualBudgetTransaction[]>();
+      
+      for (const transaction of transactions) {
+        if (!transactionsByAccount.has(transaction.account)) {
+          transactionsByAccount.set(transaction.account, []);
+        }
+        transactionsByAccount.get(transaction.account)!.push(transaction);
+      }
+
+      // Import transactions for each account
+      const importPromises = Array.from(transactionsByAccount.entries()).map(
+        async ([accountId, accountTransactions]) => {
+          try {
+            await actualAPI.importTransactions(accountId, accountTransactions);
+            console.log(`Imported ${accountTransactions.length} transactions to account ${accountId}`);
+          } catch (error: any) {
+            console.error(`Failed to import transactions to account ${accountId}:`, error.message);
+            throw new Error(`Failed to import transactions to account ${accountId}: ${error.message}`);
+          }
+        }
+      );
+
+      await Promise.all(importPromises);
     } catch (error: any) {
       console.error('Failed to import transactions to Actual Budget:', error.message);
       throw new Error(`Failed to import transactions: ${error.message}`);

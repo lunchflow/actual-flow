@@ -3,7 +3,7 @@ import { ActualBudgetClient } from './actual-budget-client';
 import { TransactionMapper } from './transaction-mapper';
 import { ConfigManager } from './config-manager';
 import { TerminalUI } from './ui';
-import { Config, AccountMapping, ConnectionStatus } from './types';
+import { Config, AccountMapping, ConnectionStatus, LunchFlowTransaction } from './types';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 
@@ -136,19 +136,59 @@ export class LunchFlowImporter {
       return;
     }
 
-    const spinner = this.ui.showSpinner('Fetching transactions...');
+    const spinner = this.ui.showSpinner('Fetching transactions from all mapped accounts...');
 
     try {
-      const lfTransactions = await this.lfClient.getTransactions(this.config.accountMappings[0].lunchFlowAccountId);
+      // Fetch transactions from all mapped accounts
+      const allLfTransactions: LunchFlowTransaction[] = [];
+      const accountResults: { account: string; count: number; success: boolean }[] = [];
+      
+      for (const mapping of this.config.accountMappings) {
+        try {
+          const accountTransactions = await this.lfClient.getTransactions(mapping.lunchFlowAccountId);
+          allLfTransactions.push(...accountTransactions);
+          accountResults.push({
+            account: `${mapping.lunchFlowAccountName} → ${mapping.actualBudgetAccountName}`,
+            count: accountTransactions.length,
+            success: true
+          });
+        } catch (error) {
+          console.warn(`Failed to fetch transactions for Lunch Flow account ${mapping.lunchFlowAccountId} (${mapping.lunchFlowAccountName}):`, error);
+          accountResults.push({
+            account: `${mapping.lunchFlowAccountName} → ${mapping.actualBudgetAccountName}`,
+            count: 0,
+            success: false
+          });
+          // Continue with other accounts even if one fails
+        }
+      }
+      
       spinner.stop();
 
-      if (lfTransactions.length === 0) {
-        this.ui.showInfo('No transactions found for the selected date range');
+      // Show account processing summary
+      console.log('\n📊 Account Processing Summary:');
+      const table = new Table({
+        head: ['Account Mapping', 'Transactions Found', 'Status'],
+        colWidths: [50, 20, 15]
+      });
+      
+      accountResults.forEach(result => {
+        table.push([
+          result.account,
+          result.count.toString(),
+          result.success ? '✅ Success' : '❌ Failed'
+        ]);
+      });
+      
+      console.log(table.toString());
+
+      if (allLfTransactions.length === 0) {
+        this.ui.showInfo('No transactions found for any of the mapped accounts');
         return;
       }
 
       const mapper = new TransactionMapper(this.config.accountMappings);
-      const abTransactions = mapper.mapTransactions(lfTransactions);
+      const abTransactions = mapper.mapTransactions(allLfTransactions);
 
       if (abTransactions.length === 0) {
         this.ui.showError('No transactions could be mapped to Actual Budget accounts');
@@ -172,7 +212,8 @@ export class LunchFlowImporter {
       await this.abClient.importTransactions(abTransactions);
       importSpinner.stop();
 
-      this.ui.showSuccess(`Successfully imported ${abTransactions.length} transactions`);
+      const accountCount = new Set(abTransactions.map(t => t.account)).size;
+      this.ui.showSuccess(`Successfully imported ${abTransactions.length} transactions across ${accountCount} account(s)`);
     } catch (error) {
       spinner.stop();
       this.ui.showError('Failed to import transactions');
