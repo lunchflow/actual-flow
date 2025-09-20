@@ -20,6 +20,7 @@ export interface ActualBudgetTransaction {
   date: string;
   amount: number;
   imported_payee: string;
+  payee_name: string;
   account: string;
   cleared?: boolean;
   notes?: string;

@@ -21,6 +21,7 @@ export class TransactionMapper {
       date: lfTransaction.date,
       // Forcing to fixed point integer to avoid floating point precision issues
       amount: parseInt((lfTransaction.amount * 100).toFixed(0)),
+      payee_name: lfTransaction.merchant,
       imported_payee: lfTransaction.merchant,
       account: mapping.actualBudgetAccountId,
       cleared: true, // Lunch Flow transactions are always cleared
