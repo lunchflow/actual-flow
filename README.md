@@ -16,9 +16,7 @@
 
 ## Demo
 
-See the importer in action.
-
-[![asciicast](https://asciinema.org/a/gGd65kHnllxQNIk7umbonU324.svg)](https://asciinema.org/a/gGd65kHnllxQNIk7umbonU324)
+<video src="./docs/demo.mp4" controls></video>
 
 ## Features
 
