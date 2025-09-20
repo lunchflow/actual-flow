@@ -16,7 +16,7 @@
 
 ## Demo
 
-<video src="./docs/demo.mp4" controls></video>
+![Demo](./docs/demo.gif)
 
 ## Features
 
