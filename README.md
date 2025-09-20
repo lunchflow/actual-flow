@@ -1,8 +1,22 @@
-# Lunch Flow → Actual Budget Importer
+<p align="center">
+	<h1 align="center"><b>Lunch Flow 🤝 Actual Budget</b></h1>
+<p align="center">
+    Connect multiple open banking providers to your Actual Budget server.
+    <br />
+    <br />
+    <a href="https://discord.gg/TJn5mMV4jZ">Discord</a>
+    ·
+    <a href="https://lunchflow.app">Website</a>
+  </p>
+</p>
 
-A TypeScript tool that imports transactions from Lunch Flow to Actual Budget with an intuitive terminal UI for configuration and account mapping.
+## About Lunch Flow
+
+[Lunch Flow](https:lunchflow.app) is a tool that allows you to connect your banks globally to the tools you love. We currently support multiple open banking providers (GoCardless, Finicity, MX, SimpleFin, Finverse, and more ...).
 
 ## Demo
+
+See the importer in action.
 
 [![asciicast](https://asciinema.org/a/gGd65kHnllxQNIk7umbonU324.svg)](https://asciinema.org/a/gGd65kHnllxQNIk7umbonU324)
 
