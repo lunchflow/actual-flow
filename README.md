@@ -23,9 +23,10 @@
 - 🔗 **Easy Setup**: Simple configuration process for both Lunch Flow and Actual Budget connections
 - 📋 **Account Mapping**: Interactive terminal UI to map Lunch Flow accounts to Actual Budget accounts
 - 📊 **Transaction Import**: Import transactions with proper mapping and deduplication
-- 🎯 **Date Range Selection**: Choose specific date ranges for transaction import
+- 📅 **Sync Start Dates**: Configure per-account sync start dates to control import scope
 - 🔍 **Connection Testing**: Test and verify connections to both services
 - 📱 **Terminal UI**: Beautiful, interactive command-line interface
+- 🚀 **Direct Import Command**: Run imports directly from command line for automation
 - 🔄 **Deduplication**: Prevents importing duplicate transactions
 
 ## Installation
@@ -56,7 +57,22 @@ Configuration is saved to `config.json` in the project directory.
 
 ## Usage
 
-### Main Menu
+### Command Line Interface
+
+The tool supports both interactive and non-interactive modes:
+
+```bash
+# Interactive mode (default)
+actual-flow
+
+# Direct import (non-interactive)
+actual-flow import
+
+# Show help
+actual-flow help
+```
+
+### Main Menu (Interactive Mode)
 
 The tool provides an interactive menu with the following options:
 
@@ -75,14 +91,56 @@ When configuring account mappings, you'll see:
 1. All available Lunch Flow accounts
 2. All available Actual Budget accounts
 3. Interactive selection to map each Lunch Flow account to an Actual Budget account
-4. Option to skip accounts that don't need mapping
+4. **Optional sync start date** for each mapping (YYYY-MM-DD format)
+5. Option to skip accounts that don't need mapping
+
+#### Sync Start Dates
+
+You can configure a sync start date for each account mapping to control which transactions are imported:
+- Only transactions on or after the specified date will be imported
+- Leave empty to import all available transactions
+- Useful for limiting historical data or starting fresh with specific accounts
 
 ### Transaction Import
 
+#### Interactive Mode
 1. Review a preview of transactions to be imported
 2. Confirm the import
 3. Monitor progress with real-time feedback
 4. Automatic deduplication prevents importing existing transactions
+
+#### Non-Interactive Mode (`actual-flow import`)
+1. Automatically imports transactions without confirmation prompts
+2. Perfect for automation, cron jobs, or CI/CD pipelines
+3. Shows transaction preview and processing summary
+4. Respects configured sync start dates for each account
+
+## Automation Examples
+
+### Cron Job
+```bash
+# Run import every day at 2 AM
+0 2 * * * /path/to/actual-flow import
+```
+
+### GitHub Actions
+```yaml
+name: Import Transactions
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npx @lunchflow/actual-flow import
+        env:
+          LUNCHFLOW_API_KEY: ${{ secrets.LUNCHFLOW_API_KEY }}
+```
 
 ---
 
