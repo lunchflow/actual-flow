@@ -146,10 +146,19 @@ export class LunchFlowImporter {
       for (const mapping of this.config.accountMappings) {
         try {
           const accountTransactions = await this.lfClient.getTransactions(mapping.lunchFlowAccountId);
-          allLfTransactions.push(...accountTransactions);
+          
+          // Filter transactions by sync start date if specified
+          let filteredTransactions = accountTransactions;
+          if (mapping.syncStartDate) {
+            filteredTransactions = accountTransactions.filter(transaction => 
+              transaction.date >= mapping.syncStartDate!
+            );
+          }
+          
+          allLfTransactions.push(...filteredTransactions);
           accountResults.push({
             account: `${mapping.lunchFlowAccountName} → ${mapping.actualBudgetAccountName}`,
-            count: accountTransactions.length,
+            count: filteredTransactions.length,
             success: true
           });
         } catch (error) {
@@ -168,13 +177,15 @@ export class LunchFlowImporter {
       // Show account processing summary
       console.log('\n📊 Account Processing Summary:');
       const table = new Table({
-        head: ['Account Mapping', 'Transactions Found', 'Status'],
-        colWidths: [50, 20, 15]
+        head: ['Account Mapping', 'Sync Start Date', 'Transactions Found', 'Status'],
+        colWidths: [40, 15, 20, 15]
       });
       
-      accountResults.forEach(result => {
+      accountResults.forEach((result, index) => {
+        const mapping = this.config!.accountMappings[index];
         table.push([
           result.account,
+          mapping.syncStartDate || 'None',
           result.count.toString(),
           result.success ? '✅ Success' : '❌ Failed'
         ]);

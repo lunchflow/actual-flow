@@ -149,12 +149,39 @@ export class TerminalUI {
       if (answer.abAccountId !== 'skip') {
         const abAccount = abAccounts.find(a => a.id === answer.abAccountId);
         if (abAccount) {
-          mappings.push({
+          // Ask for optional sync start date
+          const dateAnswer = await inquirer.prompt([
+            {
+              type: 'input',
+              name: 'syncStartDate',
+              message: `Sync start date for "${lfAccount.name}" (YYYY-MM-DD, optional - press Enter to skip):`,
+              validate: (input: string) => {
+                if (!input.trim()) return true; // Empty is allowed
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (!dateRegex.test(input)) {
+                  return 'Please enter date in YYYY-MM-DD format or leave empty';
+                }
+                const date = new Date(input);
+                if (isNaN(date.getTime())) {
+                  return 'Please enter a valid date';
+                }
+                return true;
+              },
+            },
+          ]);
+
+          const mapping: AccountMapping = {
             lunchFlowAccountId: lfAccount.id,
             lunchFlowAccountName: lfAccount.name,
             actualBudgetAccountId: abAccount.id,
             actualBudgetAccountName: abAccount.name,
-          });
+          };
+
+          if (dateAnswer.syncStartDate.trim()) {
+            mapping.syncStartDate = dateAnswer.syncStartDate.trim();
+          }
+
+          mappings.push(mapping);
         }
       }
     }
@@ -171,8 +198,8 @@ export class TerminalUI {
     }
 
     const table = new Table({
-      head: ['Lunch Flow Account', '→', 'Actual Budget Account'],
-      colWidths: [25, 3, 25],
+      head: ['Lunch Flow Account', '→', 'Actual Budget Account', 'Sync Start Date'],
+      colWidths: [25, 3, 25, 15],
       style: {
         head: ['cyan'],
         border: ['gray'],
@@ -183,7 +210,8 @@ export class TerminalUI {
       table.push([
         mapping.lunchFlowAccountName,
         '→',
-        mapping.actualBudgetAccountName
+        mapping.actualBudgetAccountName,
+        mapping.syncStartDate || chalk.gray('None')
       ]);
     });
 

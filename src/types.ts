@@ -40,6 +40,7 @@ export interface AccountMapping {
   lunchFlowAccountName: string;
   actualBudgetAccountId: string;
   actualBudgetAccountName: string;
+  syncStartDate?: string; // Optional sync start date in YYYY-MM-DD format
 }
 
 export interface Config {
