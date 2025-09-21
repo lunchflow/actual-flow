@@ -123,7 +123,7 @@ export class LunchFlowImporter {
     }
   }
 
-  async importTransactions(): Promise<void> {
+  async importTransactions(skipConfirmation: boolean = false): Promise<void> {
     if (!this.config || this.config.accountMappings.length === 0) {
       this.ui.showError('No account mappings configured. Please configure mappings first.');
       return;
@@ -213,10 +213,14 @@ export class LunchFlowImporter {
       const abAccounts = await this.abClient.getAccounts();
       await this.ui.showTransactionPreview(abTransactions, abAccounts);
 
-      const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
-      if (!confirmed) {
-        this.ui.showInfo('Import cancelled');
-        return;
+      if (!skipConfirmation) {
+        const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
+        if (!confirmed) {
+          this.ui.showInfo('Import cancelled');
+          return;
+        }
+      } else {
+        console.log(chalk.blue(`\n📥 Proceeding with import of ${abTransactions.length} transactions (non-interactive mode)\n`));
       }
 
       const importSpinner = this.ui.showSpinner(`Importing ${abTransactions.length} transactions...`);
@@ -327,5 +331,11 @@ export class LunchFlowImporter {
           process.exit(0);
       }
     }
+  }
+
+  async runImport(): Promise<void> {
+    await this.initialize();
+    await this.importTransactions(true); // Skip confirmation in non-interactive mode
+    await this.abClient.shutdown();
   }
 }

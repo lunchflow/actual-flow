@@ -236,6 +236,7 @@ export class TerminalUI {
 
   async showMainMenu(): Promise<string> {
     console.log(chalk.blue('\n🎯 Main Menu\n'));
+    console.log(chalk.gray('💡 Tip: Use "actual-flow import" to run import directly\n'));
     
     const answer = await inquirer.prompt([
       {
