@@ -126,14 +126,14 @@ export class LunchFlowImporter {
   async importTransactions(skipConfirmation: boolean = false): Promise<void> {
     if (!this.config || this.config.accountMappings.length === 0) {
       this.ui.showError('No account mappings configured. Please configure mappings first.');
-      return;
+      throw new Error('No account mappings configured');
     }
 
     // Test connections first
     const status = await this.testConnections();
     if (!status.lunchFlow || !status.actualBudget) {
       this.ui.showError('Cannot import: connections failed');
-      return;
+      throw new Error('Connection test failed');
     }
 
     const spinner = this.ui.showSpinner('Fetching transactions from all mapped accounts...');
@@ -195,7 +195,7 @@ export class LunchFlowImporter {
 
       if (allLfTransactions.length === 0) {
         this.ui.showInfo('No transactions found for any of the mapped accounts');
-        return;
+        throw new Error('No transactions found');
       }
 
       const mapper = new TransactionMapper(this.config.accountMappings);
@@ -203,7 +203,7 @@ export class LunchFlowImporter {
 
       if (abTransactions.length === 0) {
         this.ui.showError('No transactions could be mapped to Actual Budget accounts');
-        return;
+        throw new Error('No transactions could be mapped');
       }
 
       const startDate = abTransactions.reduce((min, t) => t.date < min ? t.date : min, abTransactions[0].date);
@@ -217,7 +217,7 @@ export class LunchFlowImporter {
         const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
         if (!confirmed) {
           this.ui.showInfo('Import cancelled');
-          return;
+          throw new Error('Import cancelled by user');
         }
       } else {
         console.log(chalk.blue(`\n📥 Proceeding with import of ${abTransactions.length} transactions (non-interactive mode)\n`));
@@ -233,6 +233,7 @@ export class LunchFlowImporter {
       spinner.stop();
       this.ui.showError('Failed to import transactions');
       console.error('Import error:', error);
+      throw error;
     }
   }
 
