@@ -123,17 +123,23 @@ export class LunchFlowImporter {
     }
   }
 
-  async importTransactions(skipConfirmation: boolean = false): Promise<void> {
+  async importTransactions(skipConfirmation: boolean = false, throwOnError: boolean = false): Promise<void> {
     if (!this.config || this.config.accountMappings.length === 0) {
       this.ui.showError('No account mappings configured. Please configure mappings first.');
-      throw new Error('No account mappings configured');
+      if (throwOnError) {
+        throw new Error('No account mappings configured');
+      }
+      return;
     }
 
     // Test connections first
     const status = await this.testConnections();
     if (!status.lunchFlow || !status.actualBudget) {
       this.ui.showError('Cannot import: connections failed');
-      throw new Error('Connection test failed');
+      if (throwOnError) {
+        throw new Error('Connection test failed');
+      }
+      return;
     }
 
     const spinner = this.ui.showSpinner('Fetching transactions from all mapped accounts...');
@@ -195,7 +201,10 @@ export class LunchFlowImporter {
 
       if (allLfTransactions.length === 0) {
         this.ui.showInfo('No transactions found for any of the mapped accounts');
-        throw new Error('No transactions found');
+        if (throwOnError) {
+          throw new Error('No transactions found');
+        }
+        return;
       }
 
       const mapper = new TransactionMapper(this.config.accountMappings);
@@ -203,7 +212,10 @@ export class LunchFlowImporter {
 
       if (abTransactions.length === 0) {
         this.ui.showError('No transactions could be mapped to Actual Budget accounts');
-        throw new Error('No transactions could be mapped');
+        if (throwOnError) {
+          throw new Error('No transactions could be mapped');
+        }
+        return;
       }
 
       const startDate = abTransactions.reduce((min, t) => t.date < min ? t.date : min, abTransactions[0].date);
@@ -217,7 +229,10 @@ export class LunchFlowImporter {
         const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
         if (!confirmed) {
           this.ui.showInfo('Import cancelled');
-          throw new Error('Import cancelled by user');
+          if (throwOnError) {
+            throw new Error('Import cancelled by user');
+          }
+          return;
         }
       } else {
         console.log(chalk.blue(`\n📥 Proceeding with import of ${abTransactions.length} transactions (non-interactive mode)\n`));
@@ -233,7 +248,9 @@ export class LunchFlowImporter {
       spinner.stop();
       this.ui.showError('Failed to import transactions');
       console.error('Import error:', error);
-      throw error;
+      if (throwOnError) {
+        throw error;
+      }
     }
   }
 
@@ -336,7 +353,7 @@ export class LunchFlowImporter {
 
   async runImport(): Promise<void> {
     await this.initialize();
-    await this.importTransactions(true); // Skip confirmation in non-interactive mode
+    await this.importTransactions(true, true); // Skip confirmation and throw on error in non-interactive mode
     await this.abClient.shutdown();
   }
 }
