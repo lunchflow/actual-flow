@@ -123,25 +123,6 @@ You can configure a sync start date for each account mapping to control which tr
 0 2 * * * /path/to/actual-flow import
 ```
 
-### GitHub Actions
-```yaml
-name: Import Transactions
-on:
-  schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
-jobs:
-  import:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npx @lunchflow/actual-flow import
-        env:
-          LUNCHFLOW_API_KEY: ${{ secrets.LUNCHFLOW_API_KEY }}
-```
-
 ---
 
 Made with ❤️ for the Actual Budget community
