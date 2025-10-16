@@ -271,12 +271,15 @@ export class LunchFlowImporter {
         return;
       }
 
-      const importSpinner = this.ui.showSpinner(`Importing ${uniqueTransactions.length} transactions...`);
-      await this.abClient.importTransactions(uniqueTransactions);
+      // Remove duplicate detection fields before import
+      const cleanTransactions = uniqueTransactions.map(({ isDuplicate, duplicateOf, ...transaction }) => transaction);
+
+      const importSpinner = this.ui.showSpinner(`Importing ${cleanTransactions.length} transactions...`);
+      await this.abClient.importTransactions(cleanTransactions);
       importSpinner.stop();
 
-      const accountCount = new Set(uniqueTransactions.map(t => t.account)).size;
-      this.ui.showSuccess(`Successfully imported ${uniqueTransactions.length} transactions across ${accountCount} account(s)`);
+      const accountCount = new Set(cleanTransactions.map(t => t.account)).size;
+      this.ui.showSuccess(`Successfully imported ${cleanTransactions.length} transactions across ${accountCount} account(s)`);
       
       // Show duplicate summary if any were found
       if (this.config.actualBudget.duplicateCheckingAcrossAccounts) {
