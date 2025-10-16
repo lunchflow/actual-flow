@@ -1,6 +1,6 @@
 {
   "name": "@lunchflow/actual-flow",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Import transactions from Lunch Flow to Actual Budget with terminal UI.",
   "main": "./dist/index.js",
   "bin": {
