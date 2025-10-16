@@ -6,14 +6,16 @@ import path from 'path';
 export class ActualBudgetClient {
   private serverUrl: string;
   private budgetSyncId: string;
-  private password: string;
+  private serverPassword: string;
+  private encryptionPassword?: string;
   private connected: boolean = false;
   private dataDir: string;
 
-  constructor(serverUrl: string, budgetSyncId: string, password: string) {
+  constructor(serverUrl: string, budgetSyncId: string, serverPassword: string, encryptionPassword?: string) {
     this.serverUrl = serverUrl;
     this.budgetSyncId = budgetSyncId;
-    this.password = password;
+    this.serverPassword = serverPassword;
+    this.encryptionPassword = encryptionPassword;
     this.dataDir = './actual-data'; // Local cache directory
   }
 
@@ -27,11 +29,17 @@ export class ActualBudgetClient {
       await actualAPI.init({
         dataDir: this.dataDir,
         serverURL: this.serverUrl,
-        password: this.password,
+        password: this.serverPassword,
       });
       
-      // Download the budget to local cache
-      await actualAPI.downloadBudget(this.budgetSyncId);
+      // Download the budget to local cache with encryption support
+      if (this.encryptionPassword && this.encryptionPassword.trim() !== '') {
+        await actualAPI.downloadBudget(this.budgetSyncId, {
+          password: this.encryptionPassword,
+        });
+      } else {
+        await actualAPI.downloadBudget(this.budgetSyncId);
+      }
       
       this.connected = true;
       return true;
@@ -129,7 +137,7 @@ export class ActualBudgetClient {
       await actualAPI.init({
         dataDir: this.dataDir,
         serverURL: this.serverUrl,
-        password: this.password,
+        password: this.serverPassword,
       });
       
       const budgets = await actualAPI.getBudgets();
