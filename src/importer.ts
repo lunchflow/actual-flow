@@ -102,7 +102,7 @@ export class LunchFlowImporter {
       }
 
       if (abAccounts.length === 0) {
-        this.ui.showError('No Actual Budget accounts found');
+        this.ui.showError('No Actual Budget accounts found. Please create accounts in Actual Budget first, then run this command again to configure account mappings.');
         return;
       }
 
