@@ -23,7 +23,7 @@
   "author": "Amr Awad",
   "license": "MIT",
   "dependencies": {
-    "@actual-app/api": "^25.9.0",
+    "@actual-app/api": "^25.10.0",
     "inquirer": "^8.2.6",
     "chalk": "^4.1.2",
     "ora": "^5.4.1",
