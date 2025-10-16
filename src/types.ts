@@ -51,7 +51,7 @@ export interface Config {
   actualBudget: {
     serverUrl: string;
     budgetSyncId: string;
-    password?: string;
+    password: string;
   };
   accountMappings: AccountMapping[];
 }

@@ -66,7 +66,7 @@ export class ConfigManager {
     this.saveConfig(config);
   }
 
-  updateActualBudgetConfig(serverUrl: string, budgetSyncId: string, password?: string): void {
+  updateActualBudgetConfig(serverUrl: string, budgetSyncId: string, password: string): void {
     const config = this.loadConfig() || this.createDefaultConfig();
     config.actualBudget = { serverUrl, budgetSyncId, password };
     this.saveConfig(config);
@@ -90,6 +90,7 @@ export class ConfigManager {
       config.actualBudget &&
       typeof config.actualBudget.serverUrl === 'string' &&
       typeof config.actualBudget.budgetSyncId === 'string' &&
+      typeof config.actualBudget.password === 'string' &&
       Array.isArray(config.accountMappings)
     );
   }

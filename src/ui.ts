@@ -44,7 +44,7 @@ export class TerminalUI {
     return answers;
   }
 
-  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password?: string }> {
+  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password: string }> {
     console.log(chalk.yellow('\n💰 Actual Budget Configuration\n'));
     console.log(chalk.gray('To find your budget sync ID:'));
     console.log(chalk.gray('1. Open Actual Budget in your browser'));
@@ -75,8 +75,9 @@ export class TerminalUI {
       {
         type: 'password',
         name: 'password',
-        message: 'Enter Actual Budget password (optional):',
+        message: 'Enter Actual Budget password:',
         mask: '*',
+        validate: (input: string) => input.length > 0 || 'Password is required',
       },
     ]);
     return answers;

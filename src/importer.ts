@@ -21,7 +21,7 @@ export class LunchFlowImporter {
     
     // Initialize clients with default values, will be updated when config is loaded
     this.lfClient = new LunchFlowClient('', '');
-    this.abClient = new ActualBudgetClient('', '');
+    this.abClient = new ActualBudgetClient('', '', '');
   }
 
   async initialize(): Promise<void> {
