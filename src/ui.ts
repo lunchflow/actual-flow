@@ -44,12 +44,15 @@ export class TerminalUI {
     return answers;
   }
 
-  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password: string }> {
+  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password: string; encryptionPassword?: string }> {
     console.log(chalk.yellow('\n💰 Actual Budget Configuration\n'));
     console.log(chalk.gray('To find your budget sync ID:'));
     console.log(chalk.gray('1. Open Actual Budget in your browser'));
     console.log(chalk.gray('2. Go to Settings → Show advanced settings'));
     console.log(chalk.gray('3. Look for "Sync ID" - that\'s your budget sync ID\n'));
+    console.log(chalk.gray('You\'ll need two different passwords:'));
+    console.log(chalk.gray('• Server password: Used to connect to your Actual Budget server'));
+    console.log(chalk.gray('• Encryption password: Used for end-to-end encryption (optional)\n'));
     
     const answers = await inquirer.prompt([
       {
@@ -75,9 +78,16 @@ export class TerminalUI {
       {
         type: 'password',
         name: 'password',
-        message: 'Enter Actual Budget password:',
+        message: 'Enter Actual Budget server password:',
         mask: '*',
-        validate: (input: string) => input.length > 0 || 'Password is required',
+        validate: (input: string) => input.length > 0 || 'Server password is required',
+      },
+      {
+        type: 'password',
+        name: 'encryptionPassword',
+        message: 'Enter encryption password (leave empty if no end-to-end encryption):',
+        mask: '*',
+        validate: (input: string) => true, // Encryption password is optional
       },
     ]);
     return answers;

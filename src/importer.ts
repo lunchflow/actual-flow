@@ -60,7 +60,8 @@ export class LunchFlowImporter {
       this.abClient = new ActualBudgetClient(
         this.config.actualBudget.serverUrl,
         this.config.actualBudget.budgetSyncId,
-        this.config.actualBudget.password
+        this.config.actualBudget.password,
+        this.config.actualBudget.encryptionPassword
       );
     }
   }
@@ -309,7 +310,7 @@ export class LunchFlowImporter {
 
     if (action === 'actualbudget' || action === 'both') {
       const abCreds = await this.ui.getActualBudgetCredentials();
-      this.configManager.updateActualBudgetConfig(abCreds.serverUrl, abCreds.budgetSyncId, abCreds.password);
+      this.configManager.updateActualBudgetConfig(abCreds.serverUrl, abCreds.budgetSyncId, abCreds.password, abCreds.encryptionPassword);
       this.ui.showSuccess('Actual Budget credentials updated');
     }
 
