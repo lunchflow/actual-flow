@@ -44,7 +44,7 @@ export class TerminalUI {
     return answers;
   }
 
-  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password: string; encryptionPassword?: string }> {
+  async getActualBudgetCredentials(): Promise<{ serverUrl: string; budgetSyncId: string; password: string; encryptionPassword?: string; duplicateCheckingAcrossAccounts?: boolean }> {
     console.log(chalk.yellow('\n💰 Actual Budget Configuration\n'));
     console.log(chalk.gray('To find your budget sync ID:'));
     console.log(chalk.gray('1. Open Actual Budget in your browser'));
@@ -88,6 +88,12 @@ export class TerminalUI {
         message: 'Enter encryption password (leave empty if no end-to-end encryption):',
         mask: '*',
         validate: (input: string) => true, // Encryption password is optional
+      },
+      {
+        type: 'confirm',
+        name: 'duplicateCheckingAcrossAccounts',
+        message: 'Enable duplicate checking across all accounts? (prevents importing transactions that already exist in other accounts)',
+        default: false,
       },
     ]);
     return answers;
@@ -320,9 +326,17 @@ export class TerminalUI {
       return acc;
     }, {} as Record<string, string>);
 
+    // Count duplicates for summary
+    const duplicateCount = transactions.filter(t => t.isDuplicate).length;
+    const uniqueCount = transactions.length - duplicateCount;
+
+    if (duplicateCount > 0) {
+      console.log(chalk.yellow(`⚠️  Found ${duplicateCount} duplicate transactions out of ${transactions.length} total\n`));
+    }
+
     const table = new Table({
-      head: ['Date', 'Description', 'Amount', 'Account'],
-      colWidths: [12, 30, 12, 20],
+      head: ['Date', 'Description', 'Amount', 'Account', 'Status'],
+      colWidths: [12, 25, 12, 15, 10],
       style: {
         head: ['cyan'],
         border: ['gray'],
@@ -338,11 +352,20 @@ export class TerminalUI {
           ? chalk.green(`+${amount.toFixed(2)}`)
           : chalk.red(`-${Math.abs(amount).toFixed(2)}`);
         
+        const status = transaction.isDuplicate 
+          ? chalk.red('DUPLICATE')
+          : chalk.green('NEW');
+        
+        const description = transaction.isDuplicate 
+          ? chalk.gray(transaction.imported_payee)
+          : transaction.imported_payee;
+        
         table.push([
           transaction.date,
-          transaction.imported_payee,
+          description,
           amountDisplay,
-          accountNames[transaction.account] || 'Unknown'
+          accountNames[transaction.account] || 'Unknown',
+          status
         ]);
       });
 
@@ -352,6 +375,11 @@ export class TerminalUI {
       console.log(chalk.gray(`... and ${transactions.length - count} more transactions\n`));
     } else {
       console.log();
+    }
+
+    // Show summary
+    if (duplicateCount > 0) {
+      console.log(chalk.yellow(`📋 Summary: ${uniqueCount} new transactions, ${duplicateCount} duplicates (will be skipped)\n`));
     }
   }
 }

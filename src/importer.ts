@@ -3,6 +3,7 @@ import { ActualBudgetClient } from './actual-budget-client';
 import { TransactionMapper } from './transaction-mapper';
 import { ConfigManager } from './config-manager';
 import { TerminalUI } from './ui';
+import { DuplicateTransactionDetector } from './duplicate-detector';
 import { Config, AccountMapping, ConnectionStatus, LunchFlowTransaction } from './types';
 import chalk from 'chalk';
 import Table from 'cli-table3';
@@ -209,7 +210,7 @@ export class LunchFlowImporter {
       }
 
       const mapper = new TransactionMapper(this.config.accountMappings);
-      const abTransactions = mapper.mapTransactions(allLfTransactions);
+      let abTransactions = mapper.mapTransactions(allLfTransactions);
 
       if (abTransactions.length === 0) {
         this.ui.showError('No transactions could be mapped to Actual Budget accounts');
@@ -219,6 +220,27 @@ export class LunchFlowImporter {
         return;
       }
 
+      // Check for duplicates if enabled
+      if (this.config.actualBudget.duplicateCheckingAcrossAccounts) {
+        const duplicateCheckSpinner = this.ui.showSpinner('Checking for duplicate transactions across all accounts...');
+        try {
+          const existingTransactions = await this.abClient.getTransactions();
+          const duplicateDetector = new DuplicateTransactionDetector(existingTransactions);
+          abTransactions = duplicateDetector.checkForDuplicates(abTransactions);
+          
+          const duplicateCount = duplicateDetector.getDuplicateCount(abTransactions);
+          duplicateCheckSpinner.stop();
+          
+          if (duplicateCount > 0) {
+            this.ui.showInfo(`Found ${duplicateCount} duplicate transactions that will be skipped`);
+          }
+        } catch (error) {
+          duplicateCheckSpinner.stop();
+          this.ui.showWarning('Failed to check for duplicates, proceeding without duplicate detection');
+          console.warn('Duplicate check error:', error);
+        }
+      }
+
       const startDate = abTransactions.reduce((min, t) => t.date < min ? t.date : min, abTransactions[0].date);
       const endDate = abTransactions.reduce((max, t) => t.date > max ? t.date : max, abTransactions[0].date);
 
@@ -226,8 +248,13 @@ export class LunchFlowImporter {
       const abAccounts = await this.abClient.getAccounts();
       await this.ui.showTransactionPreview(abTransactions, abAccounts);
 
+      // Filter out duplicates for import
+      const uniqueTransactions = this.config.actualBudget.duplicateCheckingAcrossAccounts 
+        ? abTransactions.filter(t => !t.isDuplicate)
+        : abTransactions;
+
       if (!skipConfirmation) {
-        const confirmed = await this.ui.confirmImport(abTransactions.length, { startDate, endDate });
+        const confirmed = await this.ui.confirmImport(uniqueTransactions.length, { startDate, endDate });
         if (!confirmed) {
           this.ui.showInfo('Import cancelled');
           if (throwOnError) {
@@ -236,15 +263,28 @@ export class LunchFlowImporter {
           return;
         }
       } else {
-        console.log(chalk.blue(`\n📥 Proceeding with import of ${abTransactions.length} transactions (non-interactive mode)\n`));
+        console.log(chalk.blue(`\n📥 Proceeding with import of ${uniqueTransactions.length} transactions (non-interactive mode)\n`));
       }
 
-      const importSpinner = this.ui.showSpinner(`Importing ${abTransactions.length} transactions...`);
-      await this.abClient.importTransactions(abTransactions);
+      if (uniqueTransactions.length === 0) {
+        this.ui.showInfo('No unique transactions to import (all were duplicates)');
+        return;
+      }
+
+      const importSpinner = this.ui.showSpinner(`Importing ${uniqueTransactions.length} transactions...`);
+      await this.abClient.importTransactions(uniqueTransactions);
       importSpinner.stop();
 
-      const accountCount = new Set(abTransactions.map(t => t.account)).size;
-      this.ui.showSuccess(`Successfully imported ${abTransactions.length} transactions across ${accountCount} account(s)`);
+      const accountCount = new Set(uniqueTransactions.map(t => t.account)).size;
+      this.ui.showSuccess(`Successfully imported ${uniqueTransactions.length} transactions across ${accountCount} account(s)`);
+      
+      // Show duplicate summary if any were found
+      if (this.config.actualBudget.duplicateCheckingAcrossAccounts) {
+        const duplicateCount = abTransactions.length - uniqueTransactions.length;
+        if (duplicateCount > 0) {
+          this.ui.showInfo(`${duplicateCount} duplicate transactions were skipped`);
+        }
+      }
     } catch (error) {
       spinner.stop();
       this.ui.showError('Failed to import transactions');
@@ -310,7 +350,7 @@ export class LunchFlowImporter {
 
     if (action === 'actualbudget' || action === 'both') {
       const abCreds = await this.ui.getActualBudgetCredentials();
-      this.configManager.updateActualBudgetConfig(abCreds.serverUrl, abCreds.budgetSyncId, abCreds.password, abCreds.encryptionPassword);
+      this.configManager.updateActualBudgetConfig(abCreds.serverUrl, abCreds.budgetSyncId, abCreds.password, abCreds.encryptionPassword, abCreds.duplicateCheckingAcrossAccounts);
       this.ui.showSuccess('Actual Budget credentials updated');
     }
 

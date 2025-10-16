@@ -56,6 +56,7 @@ export class ConfigManager {
         budgetSyncId: '',
         password: '',
         encryptionPassword: undefined,
+        duplicateCheckingAcrossAccounts: false, // Default to off
       },
       accountMappings: [],
     };
@@ -67,9 +68,15 @@ export class ConfigManager {
     this.saveConfig(config);
   }
 
-  updateActualBudgetConfig(serverUrl: string, budgetSyncId: string, serverPassword: string, encryptionPassword?: string): void {
+  updateActualBudgetConfig(serverUrl: string, budgetSyncId: string, serverPassword: string, encryptionPassword?: string, duplicateCheckingAcrossAccounts?: boolean): void {
     const config = this.loadConfig() || this.createDefaultConfig();
-    config.actualBudget = { serverUrl, budgetSyncId, password: serverPassword, encryptionPassword };
+    config.actualBudget = { 
+      serverUrl, 
+      budgetSyncId, 
+      password: serverPassword, 
+      encryptionPassword,
+      duplicateCheckingAcrossAccounts: duplicateCheckingAcrossAccounts ?? config.actualBudget.duplicateCheckingAcrossAccounts ?? false
+    };
     this.saveConfig(config);
   }
 
@@ -93,6 +100,7 @@ export class ConfigManager {
       typeof config.actualBudget.budgetSyncId === 'string' &&
       typeof config.actualBudget.password === 'string' &&
       (typeof config.actualBudget.encryptionPassword === 'string' || config.actualBudget.encryptionPassword === undefined) &&
+      (typeof config.actualBudget.duplicateCheckingAcrossAccounts === 'boolean' || config.actualBudget.duplicateCheckingAcrossAccounts === undefined) &&
       Array.isArray(config.accountMappings)
     );
   }

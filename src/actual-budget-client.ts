@@ -91,6 +91,50 @@ export class ActualBudgetClient {
     }
   }
 
+  async getTransactions(accountId?: string): Promise<ActualBudgetTransaction[]> {
+    if (!this.connected) {
+      await this.connect();
+    }
+
+    try {
+      let transactions;
+      if (accountId) {
+        // Get transactions for a specific account
+        transactions = await actualAPI.getTransactions(accountId, null, null);
+      } else {
+        // Get transactions for all accounts
+        const accounts = await this.getAccounts();
+        const allTransactions: any[] = [];
+        
+        for (const account of accounts) {
+          try {
+            const accountTransactions = await actualAPI.getTransactions(account.id, null, null);
+            allTransactions.push(...accountTransactions);
+          } catch (error: any) {
+            console.warn(`Failed to fetch transactions for account ${account.name}:`, error.message);
+            // Continue with other accounts
+          }
+        }
+        transactions = allTransactions;
+      }
+
+      return transactions.map((transaction: any) => ({
+        id: transaction.id,
+        date: transaction.date,
+        amount: transaction.amount,
+        imported_payee: transaction.imported_payee || transaction.payee_name || '',
+        payee_name: transaction.payee_name || '',
+        account: transaction.account,
+        cleared: transaction.cleared,
+        notes: transaction.notes,
+        imported_id: transaction.imported_id,
+      }));
+    } catch (error: any) {
+      console.error('Failed to fetch Actual Budget transactions:', error.message);
+      throw new Error(`Failed to fetch transactions: ${error.message}`);
+    }
+  }
+
   async importTransactions(transactions: ActualBudgetTransaction[]): Promise<void> {
     if (!this.connected) {
       await this.connect();
