@@ -6,11 +6,11 @@ import path from 'path';
 export class ActualBudgetClient {
   private serverUrl: string;
   private budgetSyncId: string;
-  private password?: string;
+  private password: string;
   private connected: boolean = false;
   private dataDir: string;
 
-  constructor(serverUrl: string, budgetSyncId: string, password?: string) {
+  constructor(serverUrl: string, budgetSyncId: string, password: string) {
     this.serverUrl = serverUrl;
     this.budgetSyncId = budgetSyncId;
     this.password = password;
