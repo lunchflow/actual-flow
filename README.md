@@ -12,7 +12,7 @@
 
 ## About Lunch Flow
 
-[Lunch Flow](https:lunchflow.app) is a tool that allows you to connect your banks globally to the tools you love. We currently support multiple open banking providers (GoCardless, Finicity, MX, SimpleFin, Finverse, and more ...).
+[Lunch Flow](https:lunchflow.app) is a tool that allows you to connect your banks globally to the tools you love. We currently support multiple open banking providers (GoCardless, Finicity, MX, Finverse, and more ...).
 
 ## Demo
 
