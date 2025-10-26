@@ -162,7 +162,7 @@ export class LunchFlowImporter {
               transaction.date >= mapping.syncStartDate!
             );
           }
-          
+
           allLfTransactions.push(...filteredTransactions);
           accountResults.push({
             account: `${mapping.lunchFlowAccountName} → ${mapping.actualBudgetAccountName}`,
@@ -279,6 +279,12 @@ export class LunchFlowImporter {
       importSpinner.stop();
 
       const accountCount = new Set(cleanTransactions.map(t => t.account)).size;
+      this.config.accountMappings.forEach(mapping => {
+          // Update sync start date to 7 days ago for next import to account for bank processing delays
+          mapping.syncStartDate = new Date(Date.now() - 604800000).toISOString().split('T')[0];
+      });
+      this.configManager.saveConfig(this.config);
+
       this.ui.showSuccess(`Successfully imported ${cleanTransactions.length} transactions across ${accountCount} account(s)`);
       
       // Show duplicate summary if any were found
