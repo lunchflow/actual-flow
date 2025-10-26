@@ -335,7 +335,7 @@ export class TerminalUI {
     }
 
     const table = new Table({
-      head: ['Date', 'Description', 'Amount', 'Account', 'Status'],
+      head: ['Date', 'Description', 'Payee', 'Amount', 'Account','Status'],
       colWidths: [12, 25, 12, 15, 10],
       style: {
         head: ['cyan'],
@@ -356,13 +356,14 @@ export class TerminalUI {
           ? chalk.red('DUPLICATE')
           : chalk.green('NEW');
         
-        const description = transaction.isDuplicate 
+        const payee = transaction.isDuplicate 
           ? chalk.gray(transaction.imported_payee)
           : transaction.imported_payee;
         
         table.push([
           transaction.date,
-          description,
+          transaction.notes ? (transaction.notes.length > 22 ? transaction.notes.slice(0, 22) + '...' : transaction.notes) : '',
+          payee,
           amountDisplay,
           accountNames[transaction.account] || 'Unknown',
           status

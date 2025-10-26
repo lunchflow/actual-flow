@@ -43,6 +43,10 @@ export interface AccountMapping {
   actualBudgetAccountId: string;
   actualBudgetAccountName: string;
   syncStartDate?: string; // Optional sync start date in YYYY-MM-DD format
+  merchantFromDescriptionRegex?: {
+    pattern: string;
+    flags?: string;
+  };
 }
 
 export interface Config {
