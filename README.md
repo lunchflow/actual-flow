@@ -120,7 +120,7 @@ You can configure a sync start date for each account mapping to control which tr
 ### Cron Job
 ```bash
 # Run import every day at 2 AM
-0 2 * * * /path/to/actual-flow import
+0 2 * * * npx @lunchflow/actual-flow import
 ```
 
 ---
