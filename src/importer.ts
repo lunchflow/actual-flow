@@ -203,9 +203,6 @@ export class LunchFlowImporter {
 
       if (allLfTransactions.length === 0) {
         this.ui.showInfo('No transactions found for any of the mapped accounts');
-        if (throwOnError) {
-          throw new Error('No transactions found');
-        }
         return;
       }
 
