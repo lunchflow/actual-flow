@@ -23,18 +23,18 @@
   "author": "Amr Awad",
   "license": "MIT",
   "dependencies": {
-    "@actual-app/api": "^25.10.0",
-    "inquirer": "^8.2.6",
-    "chalk": "^4.1.2",
-    "ora": "^5.4.1",
+    "@actual-app/api": "^25.11.0",
     "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
     "dotenv": "^16.3.1",
-    "cli-table3": "^0.6.3"
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@types/inquirer": "^9.0.7",
-    "typescript": "^5.0.0",
-    "ts-node": "^10.9.0"
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   }
 }
