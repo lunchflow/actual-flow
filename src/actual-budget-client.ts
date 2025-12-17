@@ -100,8 +100,7 @@ export class ActualBudgetClient {
       let transactions;
       if (accountId) {
         // Get transactions for a specific account
-        // Pass undefined instead of null to satisfy TypeScript strict checks
-        transactions = await actualAPI.getTransactions(accountId, undefined, undefined);
+        transactions = await actualAPI.getTransactions(accountId, '', '');
       } else {
         // Get transactions for all accounts
         const accounts = await this.getAccounts();
@@ -109,7 +108,7 @@ export class ActualBudgetClient {
         
         for (const account of accounts) {
           try {
-            const accountTransactions = await actualAPI.getTransactions(account.id, undefined, undefined);
+            const accountTransactions = await actualAPI.getTransactions(account.id, '', '');
             allTransactions.push(...accountTransactions);
           } catch (error: any) {
             console.warn(`Failed to fetch transactions for account ${account.name}:`, error.message);
