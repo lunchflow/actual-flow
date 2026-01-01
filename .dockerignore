@@ -5,7 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Build output
+# Build output (excluded because we build fresh in container)
 dist/
 build/
 
