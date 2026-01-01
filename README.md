@@ -125,6 +125,94 @@ You can configure a sync start date for each account mapping to control which tr
 0 2 * * * npx @lunchflow/actual-flow import
 ```
 
+## Docker Deployment
+
+The application can be run in a Docker container with automatic scheduling support.
+
+### Quick Start with Docker Compose
+
+1. **Initial Setup - Configure the application interactively:**
+   ```bash
+   docker-compose run --rm actual-flow interactive
+   ```
+   This will start the interactive CLI where you can:
+   - Configure Lunch Flow and Actual Budget credentials
+   - Map accounts
+   - Test connections
+
+2. **Start the automatic sync service:**
+   ```bash
+   docker-compose up -d
+   ```
+   This runs the container with automatic daily sync at 2 AM UTC.
+
+3. **Run manual sync anytime:**
+   ```bash
+   docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync
+   ```
+
+4. **View logs:**
+   ```bash
+   docker logs -f actual-flow
+   ```
+
+### Docker Run Commands
+
+If you prefer not to use docker-compose:
+
+1. **Build the image:**
+   ```bash
+   docker build -t actual-flow .
+   ```
+
+2. **Interactive configuration:**
+   ```bash
+   docker run -it --rm -v $(pwd)/data:/data actual-flow interactive
+   ```
+
+3. **Run with automatic daily sync:**
+   ```bash
+   docker run -d --name actual-flow -v $(pwd)/data:/data actual-flow
+   ```
+
+4. **Manual sync:**
+   ```bash
+   docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync
+   ```
+
+5. **Direct import (one-time):**
+   ```bash
+   docker run --rm -v $(pwd)/data:/data actual-flow import
+   ```
+
+### Configuration Persistence
+
+Configuration is stored in `config.json` and persists in the mounted volume:
+- Docker Compose: `./data` directory in your project
+- Docker Run: Specify with `-v` flag
+
+### Timezone Configuration
+
+By default, the cron runs at 2 AM UTC. To change the timezone, set the `TZ` environment variable:
+
+```yaml
+environment:
+  - TZ=America/New_York
+```
+
+Or with docker run:
+```bash
+docker run -d -e TZ=America/New_York -v $(pwd)/data:/data actual-flow
+```
+
+### Available Commands
+
+The Docker entrypoint supports the following commands:
+- `cron` (default) - Runs the container with automatic daily sync
+- `interactive` or `config` - Opens interactive CLI for configuration
+- `sync` - Runs a manual sync
+- `import` - Runs direct import (same as `sync`)
+
 ---
 
 Made with ❤️ for the Actual Budget community

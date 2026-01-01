@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  actual-flow:
+    build: .
+    container_name: actual-flow
+    volumes:
+      # Persist configuration
+      - ./data:/data
+    environment:
+      # Optional: Set timezone for cron (default is UTC)
+      - TZ=UTC
+    restart: unless-stopped
+    # Default mode: runs cron for automatic daily sync
+    # For interactive mode, use: docker-compose run --rm actual-flow interactive
+    # For manual sync, use: docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync

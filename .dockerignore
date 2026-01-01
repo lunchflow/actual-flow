@@ -19,11 +19,8 @@ actual-data/
 .env.test.local
 .env.production.local
 
-# Configuration
+# Configuration (will be mounted as volume)
 config.json
-
-# Data directory for Docker volumes
-data/
 
 # IDE
 .vscode/
@@ -45,8 +42,21 @@ pids/
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Documentation
+README.md
+docs/
