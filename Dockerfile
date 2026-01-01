@@ -10,12 +10,12 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
+# Copy source code (needed before install due to prepare script)
+COPY . .
+
 # Enable corepack (includes pnpm) and install dependencies
 RUN corepack enable && \
     pnpm install --frozen-lockfile
-
-# Copy source code
-COPY . .
 
 # Build the application
 RUN pnpm run build
