@@ -125,6 +125,167 @@ You can configure a sync start date for each account mapping to control which tr
 0 2 * * * npx @lunchflow/actual-flow import
 ```
 
+## Docker Deployment
+
+The application can be run in a Docker container with automatic scheduling support.
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Internet connection during build (to download dependencies)
+
+### Quick Start with Docker Compose
+
+1. **Build the image (first time only):**
+   ```bash
+   docker-compose build
+   ```
+   
+   > **Note**: If the build fails with network errors, retry the build command. The issue is typically transient network connectivity during dependency installation.
+
+2. **Initial Setup - Configure the application interactively:**
+   ```bash
+   docker-compose run --rm actual-flow interactive
+   ```
+   This will start the interactive CLI where you can:
+   - Configure Lunch Flow and Actual Budget credentials
+   - Map accounts
+   - Test connections
+
+3. **Start the automatic sync service:**
+   ```bash
+   docker-compose up -d
+   ```
+   This runs the container with automatic daily sync at 2 AM UTC.
+
+4. **Run manual sync anytime:**
+   ```bash
+   docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync
+   ```
+
+5. **View logs:**
+   ```bash
+   docker logs -f actual-flow
+   ```
+
+### Docker Run Commands
+
+If you prefer not to use docker-compose:
+
+1. **Build the image:**
+   ```bash
+   docker build -t actual-flow .
+   ```
+   
+   > **Troubleshooting**: If you encounter network errors during build, this is usually a temporary issue with npm/pnpm registry connectivity. Simply retry the build command. You can also try:
+   > ```bash
+   > # Build with no cache to start fresh
+   > docker build --no-cache -t actual-flow .
+   > ```
+
+2. **Interactive configuration:**
+   ```bash
+   docker run -it --rm -v $(pwd)/data:/data actual-flow interactive
+   ```
+
+3. **Run with automatic daily sync:**
+   ```bash
+   docker run -d --name actual-flow -v $(pwd)/data:/data actual-flow
+   ```
+
+4. **Manual sync:**
+   ```bash
+   docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync
+   ```
+
+5. **Direct import (one-time):**
+   ```bash
+   docker run --rm -v $(pwd)/data:/data actual-flow import
+   ```
+
+### Configuration Persistence
+
+Configuration is stored in `config.json` and persists in the mounted volume:
+- Docker Compose: `./data` directory in your project
+- Docker Run: Specify with `-v` flag
+
+### Timezone Configuration
+
+By default, the cron runs at 2 AM UTC. To change the timezone, set the `TZ` environment variable:
+
+```yaml
+environment:
+  - TZ=America/New_York
+```
+
+Or with docker run:
+```bash
+docker run -d -e TZ=America/New_York -v $(pwd)/data:/data actual-flow
+```
+
+### Available Commands
+
+The Docker entrypoint supports the following commands:
+- `cron` (default) - Runs the container with automatic daily sync
+- `interactive` or `config` - Opens interactive CLI for configuration
+- `sync` - Runs a manual sync
+- `import` - Runs direct import (same as `sync`)
+
+## How It Works: Behind the Scenes
+
+### Docker Architecture
+
+The Docker implementation consists of several key components working together:
+
+1. **Dockerfile**: Builds a lightweight Node.js container with all dependencies
+   - Uses Node.js 20 Alpine for minimal size
+   - Installs pnpm and builds the TypeScript application
+   - Creates a `/data` directory for persistent configuration
+
+2. **Entrypoint Script** (`docker-entrypoint.sh`): Handles different execution modes
+   - **Cron Mode**: Sets up automatic daily syncs at 2 AM UTC using Alpine's crond
+   - **Interactive Mode**: Launches the full CLI for configuration and manual operations
+   - **Sync/Import Mode**: Runs a one-time synchronization
+
+3. **Volume Mount**: Persists configuration between container restarts
+   - Host directory `./data` is mounted to `/data` in the container
+   - The `config.json` file is stored here with your credentials and mappings
+
+4. **Configuration Manager**: Automatically uses the `/data` path when `CONFIG_PATH` environment variable is set
+
+### Sync Process Flow
+
+When running in automatic mode:
+
+```
+Container starts → Crond scheduled for 2 AM UTC
+                     ↓
+Cron triggers → Runs: node /app/dist/index.js import
+                     ↓
+Application reads config from /data/config.json
+                     ↓
+Fetches transactions from Lunch Flow API
+                     ↓
+Matches transactions to configured account mappings
+                     ↓
+Imports to Actual Budget via API
+                     ↓
+Applies deduplication to prevent duplicates
+                     ↓
+Logs results to /var/log/actual-flow.log
+                     ↓
+Results visible via: docker logs actual-flow
+```
+
+### Key Benefits of Docker Deployment
+
+- **Isolated Environment**: All dependencies are containerized
+- **Easy Deployment**: Works on any system with Docker
+- **Automatic Scheduling**: Built-in cron for hands-free operation
+- **Persistent Configuration**: Config survives container restarts
+- **Easy Updates**: Pull new image and restart container
+- **Multiple Modes**: Same container for setup, automation, and manual syncs
+
 ---
 
 Made with ❤️ for the Actual Budget community
