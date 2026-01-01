@@ -5,8 +5,10 @@ import { Config, AccountMapping } from './types';
 export class ConfigManager {
   private configPath: string;
 
-  constructor(configPath: string = path.join(process.cwd(), 'config.json')) {
-    this.configPath = configPath;
+  constructor(configPath?: string) {
+    // Support CONFIG_PATH environment variable for Docker
+    const basePath = process.env.CONFIG_PATH || process.cwd();
+    this.configPath = configPath || path.join(basePath, 'config.json');
   }
 
   loadConfig(): Config | null {
