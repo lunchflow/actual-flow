@@ -231,6 +231,61 @@ The Docker entrypoint supports the following commands:
 - `sync` - Runs a manual sync
 - `import` - Runs direct import (same as `sync`)
 
+## How It Works: Behind the Scenes
+
+### Docker Architecture
+
+The Docker implementation consists of several key components working together:
+
+1. **Dockerfile**: Builds a lightweight Node.js container with all dependencies
+   - Uses Node.js 20 Alpine for minimal size
+   - Installs pnpm and builds the TypeScript application
+   - Creates a `/data` directory for persistent configuration
+
+2. **Entrypoint Script** (`docker-entrypoint.sh`): Handles different execution modes
+   - **Cron Mode**: Sets up automatic daily syncs at 2 AM UTC using Alpine's crond
+   - **Interactive Mode**: Launches the full CLI for configuration and manual operations
+   - **Sync/Import Mode**: Runs a one-time synchronization
+
+3. **Volume Mount**: Persists configuration between container restarts
+   - Host directory `./data` is mounted to `/data` in the container
+   - The `config.json` file is stored here with your credentials and mappings
+
+4. **Configuration Manager**: Automatically uses the `/data` path when `CONFIG_PATH` environment variable is set
+
+### Sync Process Flow
+
+When running in automatic mode:
+
+```
+Container starts → Crond scheduled for 2 AM UTC
+                     ↓
+Cron triggers → Runs: node /app/dist/index.js import
+                     ↓
+Application reads config from /data/config.json
+                     ↓
+Fetches transactions from Lunch Flow API
+                     ↓
+Matches transactions to configured account mappings
+                     ↓
+Imports to Actual Budget via API
+                     ↓
+Applies deduplication to prevent duplicates
+                     ↓
+Logs results to /var/log/actual-flow.log
+                     ↓
+Results visible via: docker logs actual-flow
+```
+
+### Key Benefits of Docker Deployment
+
+- **Isolated Environment**: All dependencies are containerized
+- **Easy Deployment**: Works on any system with Docker
+- **Automatic Scheduling**: Built-in cron for hands-free operation
+- **Persistent Configuration**: Config survives container restarts
+- **Easy Updates**: Pull new image and restart container
+- **Multiple Modes**: Same container for setup, automation, and manual syncs
+
 ---
 
 Made with ❤️ for the Actual Budget community
