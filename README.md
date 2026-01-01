@@ -129,9 +129,21 @@ You can configure a sync start date for each account mapping to control which tr
 
 The application can be run in a Docker container with automatic scheduling support.
 
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Internet connection during build (to download dependencies)
+
 ### Quick Start with Docker Compose
 
-1. **Initial Setup - Configure the application interactively:**
+1. **Build the image (first time only):**
+   ```bash
+   docker-compose build
+   ```
+   
+   > **Note**: If the build fails with network errors, retry the build command. The issue is typically transient network connectivity during dependency installation.
+
+2. **Initial Setup - Configure the application interactively:**
    ```bash
    docker-compose run --rm actual-flow interactive
    ```
@@ -140,18 +152,18 @@ The application can be run in a Docker container with automatic scheduling suppo
    - Map accounts
    - Test connections
 
-2. **Start the automatic sync service:**
+3. **Start the automatic sync service:**
    ```bash
    docker-compose up -d
    ```
    This runs the container with automatic daily sync at 2 AM UTC.
 
-3. **Run manual sync anytime:**
+4. **Run manual sync anytime:**
    ```bash
    docker exec actual-flow /usr/local/bin/docker-entrypoint.sh sync
    ```
 
-4. **View logs:**
+5. **View logs:**
    ```bash
    docker logs -f actual-flow
    ```
@@ -164,6 +176,12 @@ If you prefer not to use docker-compose:
    ```bash
    docker build -t actual-flow .
    ```
+   
+   > **Troubleshooting**: If you encounter network errors during build, this is usually a temporary issue with npm/pnpm registry connectivity. Simply retry the build command. You can also try:
+   > ```bash
+   > # Build with no cache to start fresh
+   > docker build --no-cache -t actual-flow .
+   > ```
 
 2. **Interactive configuration:**
    ```bash

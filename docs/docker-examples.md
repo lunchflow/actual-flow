@@ -174,6 +174,33 @@ cp data/config.json.backup data/config.json
 
 ## Troubleshooting
 
+### Build fails with network errors
+
+If you encounter errors like:
+```
+failed to solve: process "/bin/sh -c corepack enable && pnpm install --frozen-lockfile" did not complete successfully: exit code: 1
+```
+
+This is usually a temporary network connectivity issue with npm/pnpm registries. Solutions:
+
+1. **Retry the build**: Simply run the build command again
+   ```bash
+   docker-compose build
+   # or
+   docker build -t actual-flow .
+   ```
+
+2. **Clear Docker cache and rebuild**:
+   ```bash
+   docker-compose build --no-cache
+   # or
+   docker build --no-cache -t actual-flow .
+   ```
+
+3. **Check your internet connection**: Ensure you have stable internet access
+
+4. **Wait and retry**: Sometimes registry servers are temporarily unavailable
+
 ### Container exits immediately
 Check logs:
 ```bash
