@@ -98,17 +98,21 @@ export class ActualBudgetClient {
 
     try {
       let transactions;
+      // Use wide date range to get all transactions (API requires non-null dates in v25.12+)
+      const startDate = '1970-01-01';
+      const endDate = '2099-12-31';
+
       if (accountId) {
         // Get transactions for a specific account
-        transactions = await actualAPI.getTransactions(accountId, '', '');
+        transactions = await actualAPI.getTransactions(accountId, startDate, endDate);
       } else {
         // Get transactions for all accounts
         const accounts = await this.getAccounts();
         const allTransactions: any[] = [];
-        
+
         for (const account of accounts) {
           try {
-            const accountTransactions = await actualAPI.getTransactions(account.id, '', '');
+            const accountTransactions = await actualAPI.getTransactions(account.id, startDate, endDate);
             allTransactions.push(...accountTransactions);
           } catch (error: any) {
             console.warn(`Failed to fetch transactions for account ${account.name}:`, error.message);

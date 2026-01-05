@@ -7,6 +7,8 @@
     <a href="https://discord.gg/TJn5mMV4jZ">Discord</a>
     ·
     <a href="https://lunchflow.app">Website</a>
+	·
+    <a href="https://lunchflow.app/feedback">Feedback</a>
   </p>
 </p>
 
