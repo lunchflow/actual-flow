@@ -1,5 +1,11 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { LunchFlowTransaction, LunchFlowAccount, LunchFlowAccountId } from './types';
+interface GetTransactionsOptions {
+    startDate?: string;
+    endDate?: string;
+    includePending?: boolean;
+    [key: string]: any;
+  }
 
 export class LunchFlowClient {
   private client: AxiosInstance;
@@ -95,11 +101,19 @@ export class LunchFlowClient {
     }, 'Fetch Lunch Flow accounts');
   }
 
-  async getTransactions(accountId: LunchFlowAccountId): Promise<LunchFlowTransaction[]> {
+  async getTransactions(
+    accountId: LunchFlowAccountId,
+    options?: GetTransactionsOptions
+  ): Promise<LunchFlowTransaction[]> {
     return this.retryWithBackoff(async () => {
-      const response = await this.client.get(`/accounts/${accountId}/transactions`);
-      
-      // Handle different possible response structures
+      // Build query parameters
+      const params: any = {};
+      if (options?.startDate) params.start_date = options.startDate;
+      if (options?.endDate) params.end_date = options.endDate;
+      if (options?.includePending) params.include_pending = true;
+  
+      const response = await this.client.get(`/accounts/${accountId}/transactions`, { params });
+  
       if (Array.isArray(response.data.transactions)) {
         return response.data.transactions;
       } else {
