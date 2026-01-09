@@ -153,7 +153,7 @@ export class LunchFlowImporter {
       
       for (const mapping of this.config.accountMappings) {
         try {
-          const accountTransactions = await this.lfClient.getTransactions(mapping.lunchFlowAccountId);
+          const accountTransactions = await this.lfClient.getTransactions(mapping.lunchFlowAccountId, {includePending: true,});
           
           // Filter transactions by sync start date if specified
           let filteredTransactions = accountTransactions;
