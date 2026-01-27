@@ -1,0 +1,31 @@
+services:
+  actual-flow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: actual-flow
+    environment:
+      - TZ=${TZ:-UTC}
+      # Skip TLS verification for self-signed certificates (set to 1 to enable verification)
+      - NODE_TLS_REJECT_UNAUTHORIZED=${NODE_TLS_REJECT_UNAUTHORIZED:-0}
+      # Import schedule (default: 6 AM daily)
+      - ACTUAL_FLOW_CRON=${ACTUAL_FLOW_CRON:-0 6 * * *}
+      # Set to "true" to run import immediately on container start
+      - ACTUAL_FLOW_RUN_ON_STARTUP=${ACTUAL_FLOW_RUN_ON_STARTUP:-false}
+      # Mode: "scheduled" (default), "once" (run once and exit), "interactive" (for setup)
+      - ACTUAL_FLOW_MODE=${ACTUAL_FLOW_MODE:-scheduled}
+    volumes:
+      # Persist config and account mappings
+      - ./data:/app/config
+    restart: unless-stopped
+
+# If running Actual Budget in the same compose file, uncomment below:
+#
+#   actual-budget:
+#     image: actualbudget/actual-server:latest
+#     container_name: actual-budget
+#     ports:
+#       - "5006:5006"
+#     volumes:
+#       - ./actual-data:/data
+#     restart: unless-stopped

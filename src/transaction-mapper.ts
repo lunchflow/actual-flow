@@ -7,6 +7,19 @@ export class TransactionMapper {
     this.accountMappings = accountMappings;
   }
 
+  /**
+   * Generate a deterministic synthetic ID for pending transactions without an ID.
+   * Uses account, date, amount, and merchant to create a unique identifier.
+   */
+  private generateSyntheticId(lfTransaction: LunchFlowTransaction): string {
+    const amountCents = Math.round(lfTransaction.amount * 100);
+    const merchantSlug = lfTransaction.merchant
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .substring(0, 20);
+    return `lf_pending_${lfTransaction.accountId}_${lfTransaction.date}_${amountCents}_${merchantSlug}`;
+  }
+
   mapTransaction(lfTransaction: LunchFlowTransaction): ActualBudgetTransaction | null {
     const mapping = this.accountMappings.find(
       m => m.lunchFlowAccountId === lfTransaction.accountId
@@ -17,6 +30,8 @@ export class TransactionMapper {
       return null;
     }
 
+    const isPending = lfTransaction.isPending === true;
+
     return {
       date: lfTransaction.date,
       // Forcing to fixed point integer to avoid floating point precision issues
@@ -24,9 +39,10 @@ export class TransactionMapper {
       payee_name: lfTransaction.merchant,
       imported_payee: lfTransaction.merchant,
       account: mapping.actualBudgetAccountId,
-      cleared: true, // Lunch Flow transactions are always cleared
-      notes: lfTransaction.description,
-      imported_id: `lf_${lfTransaction.id}`,
+      cleared: !isPending, // false for pending, true for posted
+      notes: isPending ? `[PENDING] ${lfTransaction.description}` : lfTransaction.description,
+      imported_id: isPending ? this.generateSyntheticId(lfTransaction) : `lf_${lfTransaction.id}`,
+      isPending: isPending, // Track pending status for UI display
     };
   }
 

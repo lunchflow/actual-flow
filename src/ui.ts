@@ -187,6 +187,16 @@ export class TerminalUI {
             },
           ]);
 
+          // Ask whether to include pending transactions
+          const pendingAnswer = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'includePending',
+              message: `Include pending (unposted) transactions for "${lfAccount.name}"?`,
+              default: false,
+            },
+          ]);
+
           const mapping: AccountMapping = {
             lunchFlowAccountId: lfAccount.id,
             lunchFlowAccountName: lfAccount.name,
@@ -196,6 +206,10 @@ export class TerminalUI {
 
           if (dateAnswer.syncStartDate.trim()) {
             mapping.syncStartDate = dateAnswer.syncStartDate.trim();
+          }
+
+          if (pendingAnswer.includePending) {
+            mapping.includePending = true;
           }
 
           mappings.push(mapping);
@@ -215,8 +229,8 @@ export class TerminalUI {
     }
 
     const table = new Table({
-      head: ['Lunch Flow Account', '→', 'Actual Budget Account', 'Sync Start Date'],
-      colWidths: [25, 3, 25, 15],
+      head: ['Lunch Flow Account', '→', 'Actual Budget Account', 'Sync Start', 'Pending'],
+      colWidths: [25, 3, 25, 12, 10],
       style: {
         head: ['cyan'],
         border: ['gray'],
@@ -228,7 +242,8 @@ export class TerminalUI {
         mapping.lunchFlowAccountName,
         '→',
         mapping.actualBudgetAccountName,
-        mapping.syncStartDate || chalk.gray('None')
+        mapping.syncStartDate || chalk.gray('None'),
+        mapping.includePending ? chalk.green('Yes') : chalk.gray('No')
       ]);
     });
 

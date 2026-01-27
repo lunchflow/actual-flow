@@ -1,0 +1,9 @@
+# Environment file with secrets
+.env
+
+# Persistent data directory
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
