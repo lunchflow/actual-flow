@@ -117,6 +117,17 @@ You can configure a sync start date for each account mapping to control which tr
 3. Shows transaction preview and processing summary
 4. Respects configured sync start dates for each account
 
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `ACTUAL_BUDGET_VERBOSE` | Set to any value to print verbose debug output from the Actual Budget API during import (e.g. transaction reconciliation data). Off by default. |
+
+Example:
+```bash
+ACTUAL_BUDGET_VERBOSE=1 actual-flow import
+```
+
 ## Automation Examples
 
 ### Cron Job
