@@ -3,7 +3,7 @@ import { ActualBudgetTransaction, ActualBudgetAccount } from './types';
 import fs from 'fs';
 import path from 'path';
 
-const verbose = Boolean(process.env.ACTUAL_BUDGET_VERBOSE);
+const verbose = process.env.ACTUAL_BUDGET_VERBOSE !== '0';
 
 export class ActualBudgetClient {
   private serverUrl: string;

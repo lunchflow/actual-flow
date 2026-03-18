@@ -121,11 +121,11 @@ You can configure a sync start date for each account mapping to control which tr
 
 | Variable | Description |
 |---|---|
-| `ACTUAL_BUDGET_VERBOSE` | Set to any value to print verbose debug output from the Actual Budget API during import (e.g. transaction reconciliation data). Off by default. |
+| `ACTUAL_BUDGET_VERBOSE` | Set to `0` to suppress verbose debug output from the Actual Budget API during import (e.g. transaction reconciliation data). On by default. |
 
 Example:
 ```bash
-ACTUAL_BUDGET_VERBOSE=1 actual-flow import
+ACTUAL_BUDGET_VERBOSE=0 actual-flow import
 ```
 
 ## Automation Examples
