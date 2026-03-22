@@ -3,6 +3,8 @@ import { ActualBudgetTransaction, ActualBudgetAccount } from './types';
 import fs from 'fs';
 import path from 'path';
 
+const verbose = process.env.ACTUAL_BUDGET_VERBOSE !== '0';
+
 export class ActualBudgetClient {
   private serverUrl: string;
   private budgetSyncId: string;
@@ -30,6 +32,7 @@ export class ActualBudgetClient {
         dataDir: this.dataDir,
         serverURL: this.serverUrl,
         password: this.serverPassword,
+        verbose,
       });
       
       // Download the budget to local cache with encryption support
@@ -186,6 +189,7 @@ export class ActualBudgetClient {
         dataDir: this.dataDir,
         serverURL: this.serverUrl,
         password: this.serverPassword,
+        verbose,
       });
       
       const budgets = await actualAPI.getBudgets();
