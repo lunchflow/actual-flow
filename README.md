@@ -138,4 +138,13 @@ ACTUAL_BUDGET_VERBOSE=0 actual-flow import
 
 ---
 
+### github actions
+
+# Set up a github repo and insert the files /src/sync.ts and /.github/workflows/lunchflow.yml
+# Important: Add a secret to your github repo via
+settings / secrets and variables / actions > New repository secret
+-> name the secret 'ACTUAL_FLOW_CONFIG_JSON' and paste your local config.json
+Now github actions will automatically execute the actual-flow for you every 5 hours (cron job set-up via the lunchflow.yml file).
+Enjoy!
+
 Made with ❤️ for the Actual Budget community
