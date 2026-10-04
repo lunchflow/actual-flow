@@ -4,7 +4,20 @@ import 'dotenv/config';
 import chalk from 'chalk';
 import { LunchFlowImporter } from './importer';
 
+function showDeprecationNotice() {
+  console.warn(chalk.yellow.bold('\n⚠️  actual-flow is deprecated.'));
+  console.warn(
+    chalk.yellow(
+      'Actual Budget now connects to Lunch Flow through its built-in SimpleFIN bank sync.\n' +
+        'This tool keeps working, but will not receive new features. To migrate, see:\n' +
+        'https://lunchflow.app/docs/guides/destinations/actual-budget#migrating-from-actual-flow\n'
+    )
+  );
+}
+
 async function main() {
+  showDeprecationNotice();
+
   try {
     const importer = new LunchFlowImporter();
     

@@ -12,6 +12,9 @@
   </p>
 </p>
 
+> [!WARNING]
+> **actual-flow is deprecated.** Actual Budget now connects to Lunch Flow through its built-in SimpleFIN bank sync, with nothing to install or schedule. Existing setups keep working, but this tool will not receive new features. See the [Actual Budget guide](https://lunchflow.app/docs/guides/destinations/actual-budget) to set up SimpleFIN and [migrate from actual-flow](https://lunchflow.app/docs/guides/destinations/actual-budget#migrating-from-actual-flow).
+
 ## About Lunch Flow
 
 [Lunch Flow](https:lunchflow.app) is a tool that allows you to connect your banks globally to the tools you love. We currently support multiple open banking providers (GoCardless, Finicity, MX, Finverse, and more ...).
