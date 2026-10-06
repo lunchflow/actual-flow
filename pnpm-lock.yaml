@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@actual-app/api':
-        specifier: ^26.7.0
-        version: 26.7.0
+        specifier: ^26.9.0
+        version: 26.9.0
       axios:
         specifier: ^1.6.0
         version: 1.12.2
@@ -45,18 +45,18 @@ importers:
 
 packages:
 
-  '@actual-app/api@26.7.0':
-    resolution: {integrity: sha512-nZDZAE6blc1HTdNEDGomAijE9Xgw+vBwUPkUsD63MVyAu92Vyi8H7hqueePtoERo2T9HYkMunXlABRrcPwr1KA==}
+  '@actual-app/api@26.9.0':
+    resolution: {integrity: sha512-jlDN/RWOqa5ToIM3k4ShpwMIh9sCMUqYYsS5IvAIykKscGkHdmJ+0YqcLhJrG3qOkWplArp8TNknJWASUMR5AA==}
     engines: {node: '>=20'}
 
-  '@actual-app/core@26.7.0':
-    resolution: {integrity: sha512-OkssXglnNvyq2kVCPvBNNOSb9FoXwyEHWeYGyW0OwoL34Rirp8eCiz4Gz33AweEEPieW9EdWLR7rU3fPPs/8ZQ==}
+  '@actual-app/core@26.9.0':
+    resolution: {integrity: sha512-Nn6rxZQRoCYIaHtc0ZSAinA7RgYV24QuHW+XE3aJWBu9qcttjSUIBMQrBo+W960C++FcityvkIi3Yj1XIUGy+g==}
 
-  '@actual-app/crdt@3.1.0':
-    resolution: {integrity: sha512-1XQM2e4zA73kI8WJ/Le0Q3aMA9X9BRYQsCpAl0R6NN+jGgUN0CylfaupknhAjUGU8m3mY9xomOkPKj4JqJF1Dw==}
+  '@actual-app/crdt@3.1.1':
+    resolution: {integrity: sha512-zuUDbA12dYF6QInFFDdAbWcl4stDL9IWEL6HPzqlmW/T5nNNYKqclOAMCXkXx1e8TJ3jvhHnwl4/m6xzeDEZpw==}
 
-  '@bufbuild/protobuf@2.12.0':
-    resolution: {integrity: sha512-B/XlCaFIP8LOwzo+bz5uFzATYokcwCKQcghqnlfwSmM5eX/qTkvDBnDPs+gXtX/RyjxJ4DRikECcPJbyALA8FA==}
+  '@bufbuild/protobuf@2.15.0':
+    resolution: {integrity: sha512-DAheWUkVr/SJTWCc+lg9dhY0eN4SaWlf4+bG1KzHeXbnqt0AfB/NX0Z+VunGlM1ki1B4zVvye27MpKh/svySUA==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -129,10 +129,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  adm-zip@0.5.17:
-    resolution: {integrity: sha512-+Ut8d9LLqwEvHHJl1+PIHqoyDxFgVN847JTVM3Izi3xHDWPE4UtzzXysMZQs64DMcrJfBeS/uoEP4AD3HQHnQQ==}
-    engines: {node: '>=12.0'}
-
   ansi-escapes@4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
     engines: {node: '>=8'}
@@ -157,8 +153,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  better-sqlite3@12.10.0:
-    resolution: {integrity: sha512-CyzaZRQKyHkB2ZInfTTl2nvT33EbDpjkLEbE8/Zck3Ll6O0qqvuGdrJ45HgtH+HykRg88ITY3AdreBGN70aBSQ==}
+  better-sqlite3@12.11.1:
+    resolution: {integrity: sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==}
     engines: {node: 20.x || 22.x || 23.x || 24.x || 25.x || 26.x}
 
   bindings@1.5.0:
@@ -224,11 +220,11 @@ packages:
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
-  csv-parse@6.2.1:
-    resolution: {integrity: sha512-LRLMV+UCyfMokp8Wb411duBf1gaBKJfOfBWU9eHMJ+b+cJYZsNu3AFmjJf3+yPGd59Exz1TsMjaSFyxnYB9+IQ==}
+  csv-parse@7.0.2:
+    resolution: {integrity: sha512-uKZghv9UmPkMVLYy//KZ9HFAIJsl7wkhoEdIL0+rhuSY9pZQlhaeGEDPIe+/w7eh81MOql8Q/9+inAGWG6ZHYA==}
 
-  csv-stringify@6.7.0:
-    resolution: {integrity: sha512-UdtziYp5HuTz7e5j8Nvq+a/3HQo+2/aJZ9xntNTpmRRIg/3YYqDVgiS9fvAhtNbnyfbv2ZBe0bqCHqzhE7FqWQ==}
+  csv-stringify@6.8.3:
+    resolution: {integrity: sha512-gIeSCvq5F4VtXV3naV3VAewLhBkiZBz+PPhTOA8H3Y8h/ELa+R1ml0GZck/4/Nzo9ep2lvOluilJ6MJlbZsKMA==}
 
   date-fns@4.4.0:
     resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
@@ -296,6 +292,9 @@ packages:
   expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -398,8 +397,8 @@ packages:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
 
-  lru-cache@11.5.1:
-    resolution: {integrity: sha512-RPimw/7aMdv2oqRrxKwvZXcPfwBrn/JZ2xYcY9Hus/6LaS3VOAKVWKWgNLCFSiOm1ESXinjsDlidVU7JlnCN2A==}
+  lru-cache@11.5.3:
+    resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
 
   make-error@1.3.6:
@@ -632,40 +631,40 @@ packages:
 
 snapshots:
 
-  '@actual-app/api@26.7.0':
+  '@actual-app/api@26.9.0':
     dependencies:
-      '@actual-app/core': 26.7.0
-      '@actual-app/crdt': 3.1.0
-      better-sqlite3: 12.10.0
+      '@actual-app/core': 26.9.0
+      '@actual-app/crdt': 3.1.1
+      better-sqlite3: 12.11.1
       compare-versions: 6.1.1
       uuid: 14.0.1
 
-  '@actual-app/core@26.7.0':
+  '@actual-app/core@26.9.0':
     dependencies:
       '@jlongster/sql.js': 1.6.7
       '@rschedule/core': 1.5.0
       '@rschedule/standard-date-adapter': 1.5.0(@rschedule/core@1.5.0)
       absurd-sql: 0.0.54
-      adm-zip: 0.5.17
-      better-sqlite3: 12.10.0
-      csv-parse: 6.2.1
-      csv-stringify: 6.7.0
+      better-sqlite3: 12.11.1
+      csv-parse: 7.0.2
+      csv-stringify: 6.8.3
       date-fns: 4.4.0
       es-toolkit: 1.49.0
+      fflate: 0.8.3
       handlebars: 4.7.9
       hyperformula: 3.3.0
-      lru-cache: 11.5.1
+      lru-cache: 11.5.3
       mitt: 3.0.1
       uuid: 14.0.1
       xml2js: 0.6.2
 
-  '@actual-app/crdt@3.1.0':
+  '@actual-app/crdt@3.1.1':
     dependencies:
-      '@bufbuild/protobuf': 2.12.0
+      '@bufbuild/protobuf': 2.15.0
       murmurhash: 2.0.1
       uuid: 14.0.1
 
-  '@bufbuild/protobuf@2.12.0': {}
+  '@bufbuild/protobuf@2.15.0': {}
 
   '@colors/colors@1.5.0':
     optional: true
@@ -729,8 +728,6 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  adm-zip@0.5.17: {}
-
   ansi-escapes@4.3.2:
     dependencies:
       type-fest: 0.21.3
@@ -755,7 +752,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  better-sqlite3@12.10.0:
+  better-sqlite3@12.11.1:
     dependencies:
       bindings: 1.5.0
       prebuild-install: 7.1.3
@@ -823,9 +820,9 @@ snapshots:
 
   create-require@1.1.1: {}
 
-  csv-parse@6.2.1: {}
+  csv-parse@7.0.2: {}
 
-  csv-stringify@6.7.0: {}
+  csv-stringify@6.8.3: {}
 
   date-fns@4.4.0: {}
 
@@ -879,6 +876,8 @@ snapshots:
   escape-string-regexp@1.0.5: {}
 
   expand-template@2.0.3: {}
+
+  fflate@0.8.3: {}
 
   figures@3.2.0:
     dependencies:
@@ -991,7 +990,7 @@ snapshots:
       chalk: 4.1.2
       is-unicode-supported: 0.1.0
 
-  lru-cache@11.5.1: {}
+  lru-cache@11.5.3: {}
 
   make-error@1.3.6: {}
 
