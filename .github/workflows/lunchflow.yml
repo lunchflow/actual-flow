@@ -1,0 +1,32 @@
+name: Lunchflow → Actual Budget (every 5 hours)
+
+on:
+  schedule:
+    - cron: "0 */5 * * *"  # every 5 hours (UTC)
+  workflow_dispatch:
+
+jobs:
+  import-transactions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
+
+      - name: Write config.json from secret
+        run: |
+          echo "$ACTUAL_FLOW_CONFIG_JSON" > config.json
+        env:
+          ACTUAL_FLOW_CONFIG_JSON: ${{ secrets.ACTUAL_FLOW_CONFIG_JSON }}
+
+      - name: Run import (npx, no global install)
+        env:
+          LUNCHFLOW_API_KEY: ${{ secrets.LUNCHFLOW_API_KEY }}
+        run: |
+          set -eo pipefail
+          npx @lunchflow/actual-flow import
